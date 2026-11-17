@@ -3,691 +3,1834 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyroWatch ID | Sistem Informasi Mitigasi Karhutla</title>
-    
+    <title>PyroWatch ID | Sistem Informasi Manajemen Bencana Karhutla</title>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
+
+    <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans, & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind Configuration -->
+    <!-- Tailwind Custom Theme Configuration -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
+                        charcoal: {
+                            950: '#14191E',
+                            900: '#1E252B',
+                            800: '#273038',
+                            700: '#333F49'
+                        },
+                        surface: {
+                            white: '#FFFFFF',
+                            slate: '#F8FAFC',
+                            muted: '#F1F5F9'
+                        },
+                        amberbrand: {
+                            DEFAULT: '#FBBF24',
+                            hover: '#F59E0B',
+                            soft: '#FEF3C7',
+                            deep: '#B45309'
+                        },
+                        ember: {
+                            DEFAULT: '#EA580C',
+                            dark: '#C2410C',
+                            soft: '#FFF7ED'
+                        },
                         forest: {
-                            950: '#0a1711',
-                            900: '#0d1f17',
-                            800: '#153124',
-                            DEFAULT: '#1b4332',
-                            light: '#2d6a4f'
+                            DEFAULT: '#15803D',
+                            dark: '#166534',
+                            soft: '#F0FDF4'
                         },
-                        flame: {
-                            DEFAULT: '#e76f51',
-                            dark: '#d9480f',
-                            light: '#f4a261',
-                            glow: 'rgba(231, 111, 81, 0.5)'
+                        ink: {
+                            DEFAULT: '#0F172A',
+                            body: '#475569',
+                            muted: '#64748B'
                         },
-                        ash: '#2b2d42',
-                        peat: '#3d2616'
+                        line: '#E2E8F0'
                     },
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        heading: ['"Oswald"', 'sans-serif']
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
                     }
                 }
             }
         }
     </script>
-    
-    <!-- Custom CSS for specific effects -->
+
+    <!-- Custom Vector & Micro-Interaction Styles -->
     <style>
-        .hero-gradient {
-            background: linear-gradient(to bottom, rgba(10, 23, 17, 0.8) 0%, rgba(13, 31, 23, 0.6) 50%, rgba(10, 23, 17, 1) 100%);
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
+        /* Crisp sticky navigation bar */
+        .top-nav {
+            background-color: rgba(30, 37, 43, 0.94);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .glass-panel-dark {
-            background: rgba(10, 23, 17, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+
+        /* Subtle vector scanline pulse for hero satellite illustration */
+        @keyframes scanPulse {
+            0%, 100% { opacity: 0.35; transform: translateY(0px); }
+            50% { opacity: 0.85; transform: translateY(4px); }
         }
-        
-        /* Map Layers CSS */
-        .map-layer {
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            opacity: 0;
-            pointer-events: none;
-            position: absolute;
-            inset: 0;
+        .animate-scan {
+            animation: scanPulse 3.6s ease-in-out infinite;
         }
-        .map-layer.active {
-            opacity: 1;
-            pointer-events: auto;
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
         }
-        .thermal-overlay {
-            background: radial-gradient(circle at 30% 40%, rgba(255,0,0,0.6) 0%, rgba(255,165,0,0.3) 30%, transparent 60%),
-                        radial-gradient(circle at 70% 60%, rgba(255,0,0,0.5) 0%, rgba(255,165,0,0.2) 40%, transparent 70%);
-            mix-blend-mode: multiply;
+        .animate-satellite {
+            animation: floatSlow 5s ease-in-out infinite;
         }
-        .surface-overlay {
-            background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); /* Simulating smoke/ash */
-            background-color: rgba(231, 111, 81, 0.2);
+
+        /* Carousel auto-slide progress bar */
+        @keyframes progressFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
-        
-        /* Custom Scrollbar */
+        .carousel-progress-active {
+            animation: progressFill 4.5s linear forwards;
+        }
+        .carousel-progress-paused {
+            animation-play-state: paused !important;
+        }
+
+        /* Smooth panel reveal for interactive tabs */
+        @keyframes panelFade {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .panel-reveal {
+            animation: panelFade 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Custom clean scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a1711; }
-        ::-webkit-scrollbar-thumb { background: #2d6a4f; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e76f51; }
+        ::-webkit-scrollbar-track { background: #1E252B; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FBBF24; }
     </style>
 </head>
-<body class="bg-forest-950 text-gray-200 font-sans antialiased selection:bg-flame selection:text-white">
+<body class="bg-surface-white text-ink font-sans antialiased selection:bg-amberbrand selection:text-charcoal-900 overflow-x-hidden">
 
-    <!-- TOP ALERT / LIVE HOTSPOT INDICATOR -->
-    <div class="bg-flame-dark text-xs md:text-sm py-2 px-4 text-white relative z-50 overflow-hidden">
-        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] opacity-20"></div>
-        <div class="container mx-auto flex items-center justify-between relative z-10">
-            <span class="flex items-center gap-3">
-                <span class="relative flex h-3 w-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+    <!-- ===================================================================== -->
+    <!-- 1. TOP EMERGENCY BAR                                                  -->
+    <!-- ===================================================================== -->
+    <div class="bg-charcoal-950 text-slate-200 border-b border-white/10 text-xs py-2 px-4 relative z-50">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 text-center sm:text-left">
+                <span class="relative flex h-2 w-2 shrink-0">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amberbrand opacity-80"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amberbrand"></span>
                 </span>
-                <span class="font-bold tracking-wider">SIAGA DARURAT:</span> Indeks Risiko Karhutla Tinggi di Wilayah Kalimantan & Sumatera.
-            </span>
-            <div class="hidden sm:flex items-center gap-4 font-medium text-white/80">
-                <span><i class="fa-solid fa-phone-volume mr-1"></i> Call Center: 112</span>
+                <p class="leading-snug">
+                    <span class="font-mono font-bold uppercase tracking-wider text-amberbrand">SIAGA DARURAT KARHUTLA:</span>
+                    <span class="text-slate-300">Pemantauan aktif wilayah rawan Kalimantan &amp; Sumatera.</span>
+                </p>
             </div>
+            <a href="tel:112" class="inline-flex items-center gap-2 font-mono text-[11px] font-semibold text-white bg-white/10 hover:bg-amberbrand hover:text-charcoal-900 px-3 py-1 rounded-full transition-colors shrink-0">
+                <i class="fa-solid fa-phone-volume text-[10px]"></i> Call Center 112
+            </a>
         </div>
     </div>
 
-    <!-- NAVBAR (Glassmorphism) -->
-    <nav class="sticky top-0 z-50 glass-panel border-b-0 shadow-2xl transition-all duration-300">
-        <div class="container mx-auto px-4 lg:px-8 py-4 flex justify-between items-center">
+    <!-- ===================================================================== -->
+    <!-- 2. STICKY CRISP NAVBAR                                                -->
+    <!-- ===================================================================== -->
+    <nav class="sticky top-0 z-50 top-nav border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Custom SVG PyroWatch ID Brand Logo -->
             <a href="#" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-flame to-flame-dark flex items-center justify-center shadow-[0_0_15px_rgba(231,111,81,0.5)] group-hover:scale-105 transition-transform">
-                    <i class="fa-solid fa-fire text-white text-xl"></i>
-                </div>
+                <svg class="w-9 h-9 shrink-0 transition-transform duration-300 group-hover:scale-105" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect width="40" height="40" rx="10" fill="#FBBF24"/>
+                    <path d="M21.8 9.5C21.8 9.5 28 14.8 28 21.2C28 25.8 24.4 29.5 20 29.5C15.6 29.5 12 25.8 12 21.2C12 18.4 13.4 15.8 15.2 14.2C15.1 16.2 16.3 17.6 17.6 17.8C16.9 14.6 18.8 11.4 21.8 9.5Z" fill="#1E252B"/>
+                    <circle cx="20" cy="23.2" r="2.8" fill="#EA580C"/>
+                </svg>
                 <div>
-                    <h1 class="text-xl font-heading font-bold tracking-wider text-white leading-none">PYROWATCH<span class="text-flame">ID</span></h1>
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-emerald-400 font-semibold">Sistem Informasi Bencana</span>
+                    <span class="font-display font-bold text-lg tracking-tight text-white block leading-none">
+                        PYROWATCH<span class="text-amberbrand">ID</span>
+                    </span>
+                    <span class="font-mono text-[10px] tracking-[0.16em] text-slate-400 uppercase block mt-1">
+                        Karhutla Spatial System
+                    </span>
                 </div>
             </a>
-            
-            <div class="hidden lg:flex items-center gap-8 text-sm font-semibold tracking-wide">
-                <a href="pyrowatch-v3-siap.html" class="text-white hover:text-flame transition">DASHBOARD</a>
-                <a href="#edukasi" class="text-gray-300 hover:text-white transition">EDUKASI</a>
-                <a href="#penyebab" class="text-gray-300 hover:text-white transition">PENYEBAB & DAMPAK</a>
-                <a href="#mitigasi" class="text-gray-300 hover:text-white transition">MITIGASI</a>
-                <a href="#tim" class="text-gray-300 hover:text-white transition">TIM KAMI</a>
+
+            <!-- Desktop Navigation Links -->
+            <div class="hidden lg:flex items-center gap-7 text-[13px] font-semibold text-slate-300">
+                <a href="pyrowatch-v3-siap.html" class="text-white hover:text-amberbrand transition-colors">Dashboard Peta</a>
+                <a href="#edukasi" class="hover:text-white transition-colors">Definisi &amp; Tipe</a>
+                <a href="#penyebab" class="hover:text-white transition-colors">Penyebab &amp; Dampak</a>
+                <a href="#mitigasi" class="hover:text-white transition-colors">Mitigasi</a>
+                <a href="#studi-kasus" class="hover:text-white transition-colors">Studi Kasus</a>
+                <a href="#tim" class="hover:text-white transition-colors">Tim Kami</a>
             </div>
 
-            <a href="pyrowatch-v3-siap.html" class="hidden md:inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white transition shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:shadow-[0_0_25px_rgba(220,38,38,0.6)]">
-                <i class="fa-solid fa-bullhorn"></i> Lapor Bencana
-            </a>
-
-            <!-- Mobile Menu Toggle -->
-            <button id="mobileMenuBtn" class="lg:hidden text-2xl text-white focus:outline-none p-2">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+            <!-- High-Contrast CTA & Mobile Toggle -->
+            <div class="flex items-center gap-3">
+                <a href="pyrowatch-v3-siap.html" class="hidden sm:inline-flex items-center gap-2 bg-amberbrand hover:bg-amberbrand-hover text-charcoal-900 font-bold text-xs px-4 py-2.5 rounded-full transition-all shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-ember animate-pulse"></span>
+                    Buka Peta Live
+                </a>
+                <button id="mobileMenuBtn" type="button" aria-label="Buka menu navigasi" aria-expanded="false" class="lg:hidden w-10 h-10 rounded-lg border border-white/15 text-white hover:bg-white/10 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Mobile Nav Menu -->
-        <div id="mobileMenu" class="hidden lg:hidden bg-forest-900 border-t border-white/10 px-6 py-4 space-y-4 font-semibold text-sm shadow-xl">
-            <a href="pyrowatch-v3-siap.html" class="block text-white hover:text-flame">DASHBOARD PEMANTAUAN</a>
-            <a href="#edukasi" class="block text-gray-300 hover:text-white">EDUKASI & DEFINISI</a>
-            <a href="#penyebab" class="block text-gray-300 hover:text-white">PENYEBAB & DAMPAK</a>
-            <a href="#mitigasi" class="block text-gray-300 hover:text-white">FASE MITIGASI</a>
-            <a href="#tim" class="block text-gray-300 hover:text-white">TIM KAMI</a>
+        <!-- Mobile Menu Drawer -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-charcoal-950 border-t border-white/10 px-5 py-5 space-y-3 text-sm font-semibold">
+            <a href="pyrowatch-v3-siap.html" class="flex items-center justify-between py-2 text-amberbrand">
+                <span>Dashboard Peta Interaktif</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+            <a href="#edukasi" class="block py-2 text-slate-300 hover:text-white border-t border-white/5">Definisi &amp; Tipe</a>
+            <a href="#penyebab" class="block py-2 text-slate-300 hover:text-white border-t border-white/5">Penyebab &amp; Dampak</a>
+            <a href="#mitigasi" class="block py-2 text-slate-300 hover:text-white border-t border-white/5">Mitigasi</a>
+            <a href="#studi-kasus" class="block py-2 text-slate-300 hover:text-white border-t border-white/5">Studi Kasus</a>
+            <a href="#tim" class="block py-2 text-slate-300 hover:text-white border-t border-white/5">Tim Kami</a>
+            <div class="pt-3">
+                <a href="pyrowatch-v3-siap.html" class="w-full inline-flex items-center justify-center gap-2 bg-amberbrand text-charcoal-900 font-bold text-xs uppercase tracking-wider py-3 rounded-full">
+                    <i class="fa-solid fa-map-location-dot"></i> Buka Peta Live
+                </a>
+            </div>
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
-    <header class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <!-- Background Image & Gradient -->
-        <div class="absolute inset-0 bg-cover bg-center bg-fixed scale-105 animate-[pulse-slow_10s_ease-in-out_infinite]" style="background-image: url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=1920&q=80');"></div>
-        <div class="absolute inset-0 hero-gradient"></div>
-
-        <div class="relative z-10 container mx-auto px-4 py-20 flex flex-col items-center text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8 animate-float">
-                <i class="fa-solid fa-satellite-dish"></i> Integrasi Data KHG & Thermal
-            </div>
-            
-            <h2 class="text-5xl md:text-7xl lg:text-8xl font-heading font-black tracking-tight text-white mb-6 drop-shadow-2xl">
-                KARHUTLA <span class="text-transparent bg-clip-text bg-gradient-to-r from-flame to-yellow-500">MONITOR</span>
-            </h2>
-            
-            <p class="text-lg md:text-2xl text-gray-300 font-medium mb-10 max-w-3xl leading-relaxed">
-                Platform Sistem Informasi Manajemen Bencana. Menganalisis ancaman ekologi permukaan dan bara api bawah tanah gambut secara terpadu.
-            </p>
-            
-            <div class="flex flex-col sm:flex-row gap-5">
-                <a href="pyrowatch-v3-siap.html" class="group relative px-8 py-4 bg-flame rounded-full font-bold text-white uppercase tracking-wider overflow-hidden transition-all hover:scale-105 shadow-[0_0_20px_rgba(231,111,81,0.4)]">
-                    <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                    <span class="flex items-center gap-2 relative z-10"><i class="fa-solid fa-map-location-dot"></i> Buka Dashboard Peta</span>
-                </a>
-                <a href="#edukasi" class="px-8 py-4 rounded-full font-bold text-white uppercase tracking-wider border border-white/20 hover:bg-white/10 transition-all flex items-center justify-center gap-2 glass-panel">
-                    <i class="fa-solid fa-book-open"></i> Pelajari Mitigasi
-                </a>
-            </div>
+    <!-- ===================================================================== -->
+    <!-- 3. ASYMMETRIC SPLIT HERO SECTION (#1E252B with Layered Silhouettes)   -->
+    <!-- ===================================================================== -->
+    <header class="relative bg-charcoal-900 text-white overflow-hidden">
+        <!-- Layered Vector Cloud & Forest Silhouettes at Bottom (Inspired by clean vector split-hero) -->
+        <div class="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full h-[260px] sm:h-[340px]" viewBox="0 0 1440 340" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Back soft cloud/ridge layer -->
+                <path d="M0 150C90 120 175 135 250 170C330 110 455 105 550 165C640 95 790 95 885 160C980 110 1105 115 1190 170C1275 130 1365 135 1440 165V340H0V150Z" fill="#252E36"/>
+                <!-- Mid forest canopy silhouette layer -->
+                <path d="M0 215C120 185 240 195 360 225C490 180 640 185 770 225C910 175 1070 180 1210 225C1300 200 1375 205 1440 220V340H0V215Z" fill="#181E24"/>
+                <!-- Subtle stylized vector trees on left & right edges -->
+                <g opacity="0.45" fill="#2B3640">
+                    <rect x="74" y="210" width="6" height="65" rx="3"/>
+                    <circle cx="77" cy="192" r="24"/>
+                    <rect x="128" y="228" width="5" height="50" rx="2.5"/>
+                    <circle cx="130.5" cy="214" r="18"/>
+                    <rect x="1340" y="205" width="6" height="70" rx="3"/>
+                    <circle cx="1343" cy="186" r="26"/>
+                    <rect x="1290" y="225" width="5" height="52" rx="2.5"/>
+                    <circle cx="1292.5" cy="210" r="18"/>
+                </g>
+            </svg>
         </div>
-        
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce text-white/50">
-            <span class="text-xs uppercase tracking-widest font-semibold mb-2">Scroll</span>
-            <i class="fa-solid fa-arrow-down"></i>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-20 lg:py-24">
+            <div class="grid lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+                <!-- Left Column: Crisp Bold Uppercase Headline & CTAs -->
+                <div class="lg:col-span-6 text-left">
+                    <div class="inline-flex items-center gap-2 bg-white/[0.07] border border-white/15 rounded-full px-3.5 py-1.5 mb-6">
+                        <span class="w-2 h-2 rounded-full bg-amberbrand"></span>
+                        <span class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+                            SIMB Karhutla • Dua Lapis Deteksi
+                        </span>
+                    </div>
+
+                    <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-[54px] uppercase tracking-tight text-white leading-[1.08] mb-5">
+                        PANTAU KARHUTLA PERMUKAAN &amp; <span class="text-amberbrand">BARA GAMBUT.</span>
+                    </h1>
+
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-xl mb-8">
+                        Sistem Informasi Manajemen Bencana terpadu untuk mendeteksi titik panas satelit, memetakan kerawanan Kesatuan Hidrologis Gambut (KHG), serta mengoordinasikan mitigasi secara cepat.
+                    </p>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 mb-10">
+                        <a href="pyrowatch-v3-siap.html" class="inline-flex items-center justify-center gap-2.5 bg-amberbrand hover:bg-amberbrand-hover text-charcoal-900 font-bold text-sm px-7 py-3.5 rounded-full transition-all shadow-[0_8px_24px_rgba(251,191,36,0.28)]">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            Buka Dashboard Peta
+                        </a>
+                        <a href="#edukasi" class="inline-flex items-center justify-center gap-2.5 bg-transparent hover:bg-white/10 text-white border border-white/25 hover:border-white/50 font-semibold text-sm px-7 py-3.5 rounded-full transition-all">
+                            <i class="fa-solid fa-book-open text-amberbrand"></i>
+                            Pelajari Mitigasi
+                        </a>
+                    </div>
+
+                    <!-- Clean Compact Telemetry Metadata -->
+                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/10 max-w-lg">
+                        <div>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400 block">Sensor Satelit</span>
+                            <span class="font-display font-bold text-sm sm:text-base text-white mt-0.5 block">VIIRS 375m</span>
+                        </div>
+                        <div>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400 block">Analisis Lapisan</span>
+                            <span class="font-display font-bold text-sm sm:text-base text-amberbrand mt-0.5 block">KHG Gambut</span>
+                        </div>
+                        <div>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400 block">Data Atmosfer</span>
+                            <span class="font-display font-bold text-sm sm:text-base text-emerald-400 mt-0.5 block">AQI &amp; Angin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Bespoke Custom SVG Editorial Illustration -->
+                <div class="lg:col-span-6 flex justify-center">
+                    <div class="w-full max-w-[540px] bg-charcoal-800/75 border border-white/10 rounded-2xl p-4 sm:p-6 shadow-2xl">
+                        <!-- Top Telemetry Header inside Illustration Frame -->
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4 font-mono text-[11px] text-slate-400">
+                            <span class="flex items-center gap-2 text-slate-200 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                DUAL-LAYER THERMAL SCANNER
+                            </span>
+                            <span>KHG-01 • SEBANGAU</span>
+                        </div>
+
+                        <!-- Bespoke SVG Illustration: Satellite Thermal Scanning Over Forest Canopy & Underground Peat Fire -->
+                        <svg class="w-full h-auto rounded-xl" viewBox="0 0 520 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi pemindaian satelit termal terhadap api permukaan hutan dan bara gambut bawah tanah">
+                            <!-- Sky Backdrop -->
+                            <rect width="520" height="360" rx="12" fill="#171D22"/>
+                            <!-- Subtle Coordinate Grid -->
+                            <g stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="1">
+                                <line x1="0" y1="72" x2="520" y2="72"/>
+                                <line x1="0" y1="144" x2="520" y2="144"/>
+                                <line x1="0" y1="216" x2="520" y2="216"/>
+                                <line x1="130" y1="0" x2="130" y2="360"/>
+                                <line x1="260" y1="0" x2="260" y2="360"/>
+                                <line x1="390" y1="0" x2="390" y2="360"/>
+                            </g>
+
+                            <!-- Orbit Arc -->
+                            <path d="M55 75C165 22 355 22 465 75" stroke="#94A3B8" stroke-opacity="0.25" stroke-width="1.5" stroke-dasharray="5 5"/>
+
+                            <!-- Thermal Scan Cones from Satellite -->
+                            <polygon points="260,56 145,215 235,215" fill="url(#scanBeamLeft)" class="animate-scan"/>
+                            <polygon points="260,56 290,275 395,275" fill="url(#scanBeamRight)" class="animate-scan"/>
+
+                            <!-- Orbiting Satellite (Floating) -->
+                            <g class="animate-satellite">
+                                <!-- Solar Panels -->
+                                <rect x="196" y="42" width="44" height="16" rx="3" fill="#38BDF8" fill-opacity="0.25" stroke="#38BDF8" stroke-width="1.5"/>
+                                <line x1="210" y1="42" x2="210" y2="58" stroke="#38BDF8" stroke-width="1"/>
+                                <line x1="225" y1="42" x2="225" y2="58" stroke="#38BDF8" stroke-width="1"/>
+                                <rect x="280" y="42" width="44" height="16" rx="3" fill="#38BDF8" fill-opacity="0.25" stroke="#38BDF8" stroke-width="1.5"/>
+                                <line x1="295" y1="42" x2="295" y2="58" stroke="#38BDF8" stroke-width="1"/>
+                                <line x1="310" y1="42" x2="310" y2="58" stroke="#38BDF8" stroke-width="1"/>
+                                <!-- Satellite Body -->
+                                <rect x="246" y="36" width="28" height="28" rx="6" fill="#F8FAFC" stroke="#1E252B" stroke-width="2"/>
+                                <circle cx="260" cy="50" r="5" fill="#FBBF24"/>
+                                <!-- Sensor Dish -->
+                                <path d="M252 64H268L264 71H256L252 64Z" fill="#FBBF24"/>
+                            </g>
+
+                            <!-- Distant Forest Ridge -->
+                            <path d="M0 195L45 170L95 190L155 162L215 188L285 165L350 190L425 160L480 185L520 172V225H0V195Z" fill="#22302B"/>
+
+                            <!-- Vector Forest Trees (Left Healthy Canopy) -->
+                            <g>
+                                <rect x="52" y="185" width="6" height="35" fill="#475569"/>
+                                <polygon points="55,140 32,190 78,190" fill="#15803D"/>
+                                <polygon points="55,124 37,164 73,164" fill="#22C55E"/>
+
+                                <rect x="102" y="180" width="6" height="40" fill="#475569"/>
+                                <polygon points="105,130 78,186 132,186" fill="#166534"/>
+                                <polygon points="105,112 84,158 126,158" fill="#16A34A"/>
+                            </g>
+
+                            <!-- Surface Fire Hotspot (Center-Left) -->
+                            <g>
+                                <!-- Smoke Plume -->
+                                <path d="M188 168C178 150 192 132 210 124C215 106 238 98 254 110C270 104 286 118 280 134" stroke="#94A3B8" stroke-opacity="0.45" stroke-width="6" stroke-linecap="round"/>
+                                <!-- Surface Flame -->
+                                <path d="M190 172C190 172 208 188 208 205C208 216 199 224 188 224C177 224 168 216 168 205C168 196 173 188 178 184C178 190 182 194 185 194C183 185 186 177 190 172Z" fill="#EA580C"/>
+                                <path d="M189 191C189 191 198 199 198 208C198 214 193 219 188 219C183 219 178 214 178 208C178 202 184 196 189 191Z" fill="#FBBF24"/>
+                                <!-- Reticle Box -->
+                                <rect x="160" y="166" width="56" height="60" rx="6" stroke="#EA580C" stroke-width="1.5" stroke-dasharray="4 3"/>
+                            </g>
+
+                            <!-- Right Forest Canopy above Peat Zone -->
+                            <g>
+                                <rect x="335" y="182" width="6" height="38" fill="#475569"/>
+                                <polygon points="338,134 313,188 363,188" fill="#15803D"/>
+                                <rect x="405" y="178" width="6" height="42" fill="#475569"/>
+                                <polygon points="408,128 380,185 436,185" fill="#166534"/>
+                                <rect x="462" y="186" width="6" height="34" fill="#475569"/>
+                                <polygon points="465,144 444,190 486,190" fill="#15803D"/>
+                            </g>
+
+                            <!-- Soil Cross-Section: Topsoil Layer -->
+                            <rect x="0" y="220" width="520" height="30" fill="#3B2F2A"/>
+                            <line x1="0" y1="220" x2="520" y2="220" stroke="#78716C" stroke-width="2"/>
+
+                            <!-- Soil Cross-Section: Deep Peat Layer (Lapisan Gambut) -->
+                            <rect x="0" y="250" width="520" height="110" fill="#261C18"/>
+                            <!-- Peat Texture Lines -->
+                            <g stroke="#44332C" stroke-width="2" stroke-linecap="round">
+                                <line x1="28" y1="274" x2="88" y2="274"/>
+                                <line x1="120" y1="305" x2="195" y2="305"/>
+                                <line x1="42" y1="332" x2="110" y2="332"/>
+                                <line x1="420" y1="282" x2="490" y2="282"/>
+                                <line x1="405" y1="325" x2="475" y2="325"/>
+                            </g>
+
+                            <!-- Subterranean Peat Ember Pocket (Bara Gambut) -->
+                            <g>
+                                <ellipse cx="342" cy="296" rx="54" ry="26" fill="#7C2D12" fill-opacity="0.65"/>
+                                <ellipse cx="342" cy="296" rx="34" ry="15" fill="#EA580C"/>
+                                <ellipse cx="342" cy="296" rx="16" ry="7" fill="#FBBF24"/>
+                                <!-- Rising Subsurface Smoke Wisps -->
+                                <path d="M326 268C322 252 330 238 326 222" stroke="#CBD5E1" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="3 3"/>
+                                <path d="M356 268C360 250 352 236 356 220" stroke="#CBD5E1" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="3 3"/>
+                                <!-- Target Reticle for Underground Peat Fire -->
+                                <rect x="282" y="264" width="120" height="64" rx="8" stroke="#FBBF24" stroke-width="1.5" stroke-dasharray="4 3"/>
+                            </g>
+
+                            <!-- Crisp Callout Labels inside Illustration -->
+                            <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">
+                                <!-- Label 1: Surface Fire -->
+                                <rect x="24" y="226" width="152" height="20" rx="4" fill="#1E252B"/>
+                                <circle cx="35" cy="236" r="3.5" fill="#EA580C"/>
+                                <text x="45" y="239" fill="#F8FAFC">API PERMUKAAN (FRP &gt; 8MW)</text>
+
+                                <!-- Label 2: Underground Peat Fire -->
+                                <rect x="256" y="334" width="174" height="20" rx="4" fill="#1E252B"/>
+                                <circle cx="267" cy="344" r="3.5" fill="#FBBF24"/>
+                                <text x="277" y="347" fill="#FBBF24">BARA GAMBUT BAWAH TANAH</text>
+                            </g>
+
+                            <defs>
+                                <linearGradient id="scanBeamLeft" x1="260" y1="56" x2="190" y2="215" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#EA580C" stop-opacity="0.35"/>
+                                    <stop offset="1" stop-color="#EA580C" stop-opacity="0.02"/>
+                                </linearGradient>
+                                <linearGradient id="scanBeamRight" x1="260" y1="56" x2="342" y2="275" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#FBBF24" stop-opacity="0.32"/>
+                                    <stop offset="1" stop-color="#FBBF24" stop-opacity="0.02"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- SECTION: EDUKASI & DEFINISI (PPT Slide 9-12) -->
-    <section id="edukasi" class="py-24 bg-forest-900 relative">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-emerald-400 font-bold uppercase tracking-widest text-sm">Materi Akademik</span>
-                <h2 class="text-3xl md:text-5xl font-heading font-bold text-white mt-2">DEFINISI & STRATIFIKASI</h2>
-                <div class="w-20 h-1 bg-gradient-to-r from-emerald-500 to-flame mx-auto mt-4 rounded-full"></div>
-            </div>
-
-            <!-- General Def -->
-            <div class="glass-panel-dark rounded-3xl p-8 md:p-12 mb-12 border-l-4 border-l-emerald-500 max-w-4xl mx-auto relative overflow-hidden group hover:bg-white/5 transition-colors">
-                <i class="fa-solid fa-quote-left absolute top-8 right-8 text-6xl text-white/5 group-hover:text-emerald-500/10 transition-colors"></i>
-                <h3 class="text-2xl font-bold text-white mb-4">Pengertian General Karhutla</h3>
-                <p class="text-gray-300 text-lg leading-relaxed">
-                    Peristiwa terbakarnya vegetasi di suatu wilayah yang meluas secara <strong class="text-flame">tidak terkendali</strong> dan menimbulkan dampak kerugian ekologi, sosial, maupun ekonomi secara masif.
+    <!-- ===================================================================== -->
+    <!-- 4. SECTION EDUKASI & STRATIFIKASI (#edukasi - Crisp White #FFFFFF)    -->
+    <!-- ===================================================================== -->
+    <section id="edukasi" class="py-20 lg:py-28 bg-surface-white border-b border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="max-w-3xl mb-14">
+                <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-forest block mb-2.5">
+                    01 / Materi Akademik &amp; Klasifikasi
+                </span>
+                <h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-[42px] text-ink tracking-tight leading-tight">
+                    Definisi &amp; Stratifikasi Karhutla
+                </h2>
+                <p class="text-ink-body text-base mt-3 leading-relaxed">
+                    Memahami perbedaan karakteristik ruang terbakar serta lapisan vertikal api sangat menentukan strategi pemadaman di lapangan.
                 </p>
             </div>
 
-            <!-- Hutan vs Lahan -->
-            <div class="grid md:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto">
-                <div class="glass-panel p-8 rounded-3xl border border-white/5 hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div class="relative z-10">
-                        <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mb-6">
-                            <i class="fa-solid fa-tree"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-3">Kebakaran Hutan</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            Terjadi di dalam <strong>kawasan hutan</strong> yang didominasi oleh tegakan pepohonan alami, keanekaragaman flora liar, dan ekosistem primer/sekunder. Berdampak pada kerusakan habitat satwa.
+            <!-- 01. PENGERTIAN GENERAL KARHUTLA CARD -->
+            <div class="bg-surface-slate border border-line rounded-2xl p-7 sm:p-10 mb-14 relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-forest"></div>
+                <div class="grid lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-9">
+                        <span class="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-forest bg-forest-soft border border-forest/20 px-3 py-1 rounded-full inline-block mb-3">
+                            01 • Konsep Dasar Bencana
+                        </span>
+                        <h3 class="font-display font-bold text-2xl sm:text-3xl text-ink mb-3">
+                            Pengertian General Karhutla
+                        </h3>
+                        <p class="text-ink-body text-base sm:text-lg leading-relaxed">
+                            Peristiwa terbakarnya vegetasi di suatu wilayah yang meluas secara <strong class="text-ember font-bold">tidak terkendali</strong> dan menimbulkan dampak kerugian ekologi, sosial, maupun ekonomi secara masif.
                         </p>
                     </div>
-                </div>
-                <div class="glass-panel p-8 rounded-3xl border border-white/5 hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gradient-to-br from-flame/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div class="relative z-10">
-                        <div class="w-14 h-14 bg-flame/20 text-flame rounded-2xl flex items-center justify-center text-2xl mb-6">
-                            <i class="fa-solid fa-wheat-awn"></i>
+                    <div class="lg:col-span-3 flex lg:justify-end">
+                        <div class="bg-white border border-line rounded-xl p-4 w-full sm:w-auto">
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-ink-muted block">Parameter Utama</span>
+                            <ul class="mt-2 space-y-1.5 text-xs font-semibold text-ink">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-forest"></i> Penjalaran Tak Terkendali</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-ember"></i> Kerugian Multi-Sektor</li>
+                            </ul>
                         </div>
-                        <h3 class="text-2xl font-bold text-white mb-3">Kebakaran Lahan</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            Terjadi di <strong>luar kawasan hutan</strong>, seperti area perkebunan (sawit/karet), lahan pertanian, rawa belukar, atau area kosong milik warga. Sering terkait pembukaan lahan.
-                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Vertikalisasi Tipe Kebakaran -->
-            <div class="max-w-6xl mx-auto mt-24">
-                <h3 class="text-2xl md:text-3xl font-heading font-bold text-center text-white mb-10">Vertikalisasi Tipe Kebakaran</h3>
-                <div class="grid lg:grid-cols-3 gap-6">
-                    <!-- Api Tajuk -->
-                    <div class="bg-forest-950 p-6 rounded-2xl border border-red-500/30 hover:border-red-500 transition-colors group">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-red-900/50 text-red-400 text-xs px-3 py-1 rounded-full font-bold uppercase">Tingkat Atas</span>
-                            <i class="fa-solid fa-wind text-red-900 group-hover:text-red-500 transition-colors text-xl"></i>
-                        </div>
-                        <h4 class="text-xl font-bold text-white mb-2">Api Tajuk (Crown Fire)</h4>
-                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Membakar pucuk pohon tinggi dan melompat antar-pohon dengan bantuan angin. Paling spektakuler & sulit dipadamkan dari darat.</p>
-                    </div>
-                    <!-- Api Permukaan -->
-                    <div class="bg-forest-950 p-6 rounded-2xl border border-orange-500/30 hover:border-orange-500 transition-colors group">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-orange-900/50 text-orange-400 text-xs px-3 py-1 rounded-full font-bold uppercase">Permukaan</span>
-                            <i class="fa-solid fa-fire text-orange-900 group-hover:text-orange-500 transition-colors text-xl"></i>
-                        </div>
-                        <h4 class="text-xl font-bold text-white mb-2">Api Permukaan (Surface Fire)</h4>
-                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Membakar serasah dedaunan kering dan semak belukar di atas tanah. Umumnya pemicu awal, dipadamkan dengan sekat bakar.</p>
-                    </div>
-                    <!-- Api Bawah -->
-                    <div class="bg-forest-950 p-6 rounded-2xl border border-peat/50 hover:border-amber-700 transition-colors group relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-peat to-amber-700"></div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-amber-900/30 text-amber-500 text-xs px-3 py-1 rounded-full font-bold uppercase">Bawah Tanah</span>
-                            <i class="fa-solid fa-smog text-amber-900/50 group-hover:text-amber-500 transition-colors text-xl"></i>
-                        </div>
-                        <h4 class="text-xl font-bold text-white mb-2">Api Bawah (Ground Fire)</h4>
-                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Merambat perlahan di bawah tanah (lahan gambut tebal) tanpa nyala lidah api. Asap pekat, sangat sulit dideteksi & dipadamkan.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION: PENYEBAB & DAMPAK -->
-    <section id="penyebab" class="py-24 bg-forest-950">
-        <div class="container mx-auto px-4 lg:px-8">
-            
-            <!-- PENYEBAB (Slide 13-16) -->
-            <div class="mb-24">
-                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/10 pb-6">
+            <!-- 02. DIFERENSIASI REGIONAL: KEBAKARAN HUTAN VS KEBAKARAN LAHAN -->
+            <div class="mb-20">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-line pb-4 mb-8 gap-2">
                     <div>
-                        <span class="text-flame font-bold uppercase tracking-widest text-sm">Analisis Faktor</span>
-                        <h2 class="text-3xl md:text-5xl font-heading font-bold text-white mt-2">6 PENYEBAB UTAMA</h2>
+                        <span class="font-mono text-xs font-bold uppercase tracking-[0.18em] text-ink-muted block mb-1">
+                            02 • Diferensiasi Regional
+                        </span>
+                        <h3 class="font-display font-bold text-2xl sm:text-3xl text-ink">
+                            Kebakaran Hutan vs. Kebakaran Lahan
+                        </h3>
                     </div>
-                    <p class="text-gray-400 max-w-md text-sm">Kombinasi antara antropogenik (aktivitas manusia) dan kondisi iklim ekstrem memicu bencana.</p>
+                    <span class="font-mono text-xs text-ink-muted">Perbandingan Status Kawasan</span>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Cards -->
-                    <div class="glass-panel hover:bg-white/5 p-6 rounded-2xl transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-flame text-xl group-hover:bg-flame group-hover:text-white transition-colors"><i class="fa-solid fa-tractor"></i></div>
-                            <span class="text-4xl font-heading font-bold text-white/10 group-hover:text-white/20">01</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Pembukaan Lahan (Bakar)</h4>
-                        <p class="text-sm text-gray-400">Metode tebas-bakar dipilih oknum karena dianggap cara tercepat & termurah membersihkan lahan, meski berisiko lepas kendali.</p>
-                    </div>
-                    
-                    <div class="glass-panel hover:bg-white/5 p-6 rounded-2xl transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-red-500 text-xl group-hover:bg-red-500 group-hover:text-white transition-colors"><i class="fa-solid fa-smoking"></i></div>
-                            <span class="text-4xl font-heading font-bold text-white/10 group-hover:text-white/20">02</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Kelalaian Manusia</h4>
-                        <p class="text-sm text-gray-400">Membuang puntung rokok sembarangan, api unggun tak padam tuntas, atau membakar sampah saat angin kencang.</p>
-                    </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Card A: Kebakaran Hutan -->
+                    <article class="bg-white border border-line hover:border-forest/50 rounded-2xl p-6 sm:p-8 transition-all duration-300 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+                        <div>
+                            <!-- Bespoke SVG Diagram: Primary Forest Canopy -->
+                            <div class="bg-surface-slate border border-line rounded-xl p-4 mb-6">
+                                <svg class="w-full h-36" viewBox="0 0 360 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <rect width="360" height="130" rx="8" fill="#F0FDF4"/>
+                                    <!-- Ground -->
+                                    <rect x="0" y="104" width="360" height="26" rx="4" fill="#166534"/>
+                                    <!-- Tall Dense Forest Trees -->
+                                    <rect x="54" y="65" width="7" height="39" fill="#78350F"/>
+                                    <polygon points="57.5,18 28,74 87,74" fill="#15803D"/>
+                                    <polygon points="57.5,8 35,48 80,48" fill="#22C55E"/>
 
-                    <div class="glass-panel hover:bg-white/5 p-6 rounded-2xl transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-amber-500 text-xl group-hover:bg-amber-500 group-hover:text-white transition-colors"><i class="fa-solid fa-sun"></i></div>
-                            <span class="text-4xl font-heading font-bold text-white/10 group-hover:text-white/20">03</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Cuaca Panas & Kemarau</h4>
-                        <p class="text-sm text-gray-400">Suhu tinggi dan minim hujan (anomali El Niño) menyusutkan kadar air vegetasi, menjadikannya bahan bakar yang mudah terpercik.</p>
-                    </div>
+                                    <rect x="122" y="58" width="8" height="46" fill="#78350F"/>
+                                    <polygon points="126,12 92,70 160,70" fill="#166534"/>
 
-                    <div class="glass-panel hover:bg-white/5 p-6 rounded-2xl transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-blue-400 text-xl group-hover:bg-blue-400 group-hover:text-white transition-colors"><i class="fa-solid fa-wind"></i></div>
-                            <span class="text-4xl font-heading font-bold text-white/10 group-hover:text-white/20">04</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Angin Kencang</h4>
-                        <p class="text-sm text-gray-400">Menyuplai oksigen berlimpah ke pusat api serta menerbangkan bara (*firebrands*), mempercepat penyebaran & lompatan api.</p>
-                    </div>
+                                    <rect x="196" y="66" width="7" height="38" fill="#78350F"/>
+                                    <polygon points="199.5,22 172,74 227,74" fill="#15803D"/>
 
-                    <div class="glass-panel hover:bg-white/5 p-6 rounded-2xl transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-stone-400 text-xl group-hover:bg-stone-500 group-hover:text-white transition-colors"><i class="fa-solid fa-layer-group"></i></div>
-                            <span class="text-4xl font-heading font-bold text-white/10 group-hover:text-white/20">05</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Lahan Gambut Kering</h4>
-                        <p class="text-sm text-gray-400">Drainase berlebihan mengeringkan gambut. Material organik ini berubah menjadi bahan bakar padat yang membara hingga ke kedalaman.</p>
-                    </div>
+                                    <!-- Fire Hazard Indicator on Forest Edge -->
+                                    <path d="M276 66C276 66 292 78 292 92C292 100 285 106 276 106C267 106 260 100 260 92C260 84 268 74 276 66Z" fill="#EA580C"/>
+                                    <path d="M276 81C276 81 284 87 284 94C284 99 280 102 276 102C272 102 268 99 268 94C268 89 272 85 276 81Z" fill="#FBBF24"/>
+                                    <rect x="242" y="12" width="106" height="22" rx="11" fill="#1E252B"/>
+                                    <text x="295" y="26" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">KAWASAN HUTAN</text>
+                                </svg>
+                            </div>
 
-                    <div class="glass-panel hover:bg-white/5 p-6 rounded-2xl transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-yellow-300 text-xl group-hover:bg-yellow-400 group-hover:text-forest-900 transition-colors"><i class="fa-solid fa-bolt"></i></div>
-                            <span class="text-4xl font-heading font-bold text-white/10 group-hover:text-white/20">06</span>
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <span class="w-8 h-8 rounded-lg bg-forest-soft text-forest flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-tree"></i>
+                                </span>
+                                <h4 class="font-display font-bold text-xl text-ink">Kebakaran Hutan</h4>
+                            </div>
+
+                            <p class="text-ink-body text-sm sm:text-[15px] leading-relaxed mb-5">
+                                Terjadi di dalam <strong class="text-ink">kawasan hutan</strong> yang didominasi oleh tegakan pepohonan alami, keanekaragaman flora liar, dan ekosistem primer/sekunder. Berdampak pada kerusakan habitat satwa.
+                            </p>
                         </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Sambaran Petir</h4>
-                        <p class="text-sm text-gray-400">Faktor murni alam berupa petir kering (*dry lightning*) tanpa hujan lebat dapat memicu api langsung di kawasan hutan terpencil.</p>
-                    </div>
+
+                        <div class="pt-4 border-t border-line flex items-center justify-between font-mono text-[11px] text-ink-muted">
+                            <span>VEGETASI: TEGAKAN POHON ALAMI</span>
+                            <span class="text-forest font-bold">EKOSISTEM PRIMER</span>
+                        </div>
+                    </article>
+
+                    <!-- Card B: Kebakaran Lahan -->
+                    <article class="bg-white border border-line hover:border-ember/50 rounded-2xl p-6 sm:p-8 transition-all duration-300 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+                        <div>
+                            <!-- Bespoke SVG Diagram: Non-Forest Plantation / Shrub / Agricultural Land -->
+                            <div class="bg-surface-slate border border-line rounded-xl p-4 mb-6">
+                                <svg class="w-full h-36" viewBox="0 0 360 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <rect width="360" height="130" rx="8" fill="#FFF7ED"/>
+                                    <!-- Agricultural / Peat Soil -->
+                                    <rect x="0" y="102" width="360" height="28" rx="4" fill="#78350F"/>
+                                    <!-- Plantation & Shrub Rows -->
+                                    <g stroke="#B45309" stroke-width="2" stroke-linecap="round">
+                                        <path d="M45 102V78M45 84L33 74M45 84L57 74"/>
+                                        <path d="M105 102V74M105 82L91 70M105 82L119 70"/>
+                                        <path d="M165 102V80M165 86L153 76M165 86L177 76"/>
+                                    </g>
+                                    <!-- Dry Bush & Surface Spread -->
+                                    <path d="M225 70C225 70 242 82 242 94C242 101 235 106 225 106C215 106 208 101 208 94C208 86 216 77 225 70Z" fill="#EA580C"/>
+                                    <path d="M280 76C280 76 293 85 293 95C293 101 287 105 280 105C273 105 267 101 267 95C267 88 273 81 280 76Z" fill="#F59E0B"/>
+                                    <rect x="220" y="12" width="128" height="22" rx="11" fill="#1E252B"/>
+                                    <text x="284" y="26" text-anchor="middle" fill="#FBBF24" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">NON-KAWASAN HUTAN</text>
+                                </svg>
+                            </div>
+
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <span class="w-8 h-8 rounded-lg bg-ember-soft text-ember flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-wheat-awn"></i>
+                                </span>
+                                <h4 class="font-display font-bold text-xl text-ink">Kebakaran Lahan</h4>
+                            </div>
+
+                            <p class="text-ink-body text-sm sm:text-[15px] leading-relaxed mb-5">
+                                Terjadi di <strong class="text-ink">luar kawasan hutan</strong>, seperti area perkebunan (sawit/karet), lahan pertanian, rawa belukar, atau area kosong milik warga. Sering terkait pembukaan lahan.
+                            </p>
+                        </div>
+
+                        <div class="pt-4 border-t border-line flex items-center justify-between font-mono text-[11px] text-ink-muted">
+                            <span>AREA: KEBUN, SEMAK, RAWA</span>
+                            <span class="text-ember font-bold">PEMBUKAAN LAHAN</span>
+                        </div>
+                    </article>
                 </div>
             </div>
 
-            <!-- DAMPAK DUALITAS (Slide 17-20) -->
+            <!-- 03. VERTIKALISASI TIPE KEBAKARAN (Interactive 3-Layer Cross-Section + Cards) -->
             <div>
-                <div class="text-center max-w-3xl mx-auto mb-10">
-                    <span class="text-emerald-400 font-bold uppercase tracking-widest text-sm">Neraca Ekologi</span>
-                    <h2 class="text-3xl md:text-4xl font-heading font-bold text-white mt-2">DUALITAS DAMPAK</h2>
-                    <p class="text-gray-400 mt-2 text-sm">Filter untuk melihat dampak merugikan dari kebakaran tak terkendali vs manfaat kebakaran alami terkontrol.</p>
-                    
-                    <div class="inline-flex bg-forest-900 p-1.5 rounded-xl border border-white/10 mt-8">
-                        <button onclick="filterDampak('negatif')" id="btn-negatif" class="px-6 py-2.5 text-xs font-bold rounded-lg transition bg-red-600/80 text-white shadow-md">Dampak Negatif (6)</button>
-                        <button onclick="filterDampak('positif')" id="btn-positif" class="px-6 py-2.5 text-xs font-bold rounded-lg transition text-gray-400 hover:text-white">Dampak Positif (4)</button>
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-line pb-4 mb-8 gap-2">
+                    <div>
+                        <span class="font-mono text-xs font-bold uppercase tracking-[0.18em] text-ink-muted block mb-1">
+                            03 • Vertikalisasi Tipe Kebakaran
+                        </span>
+                        <h3 class="font-display font-bold text-2xl sm:text-3xl text-ink">
+                            Strata Vertikal Penjalaran Api
+                        </h3>
+                    </div>
+                    <span class="font-mono text-xs text-ember font-semibold">
+                        Klik lapisan atau kartu untuk inspeksi strata
+                    </span>
+                </div>
+
+                <!-- Interactive 3-Layer Forest Cross-Section Diagram -->
+                <div class="bg-charcoal-900 rounded-2xl p-5 sm:p-7 mb-8 text-white border border-charcoal-700">
+                    <div class="grid lg:grid-cols-12 gap-6 items-center">
+                        <!-- Interactive Cross-Section SVG -->
+                        <div class="lg:col-span-7">
+                            <svg id="strataSvg" class="w-full h-auto rounded-xl bg-charcoal-950 border border-white/10" viewBox="0 0 540 270" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram penampang vertikal tiga tipe kebakaran hutan dan lahan">
+                                <!-- Layer 1 Band: Crown Fire (Tajuk) -->
+                                <g id="svg-band-tajuk" class="cursor-pointer transition-opacity duration-300" onclick="selectStrata('tajuk')">
+                                    <rect x="8" y="10" width="524" height="82" rx="8" fill="#EF4444" fill-opacity="0.14" stroke="#EF4444" stroke-width="1.5"/>
+                                    <text x="22" y="30" fill="#FCA5A5" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">01. API TAJUK (CROWN FIRE)</text>
+                                    <text x="22" y="45" fill="#CBD5E1" font-family="Plus Jakarta Sans, sans-serif" font-size="10">Menjalar antar-kanopi pohon tinggi</text>
+                                </g>
+
+                                <!-- Layer 2 Band: Surface Fire (Permukaan) -->
+                                <g id="svg-band-permukaan" class="cursor-pointer transition-opacity duration-300 opacity-55" onclick="selectStrata('permukaan')">
+                                    <rect x="8" y="98" width="524" height="74" rx="8" fill="#F97316" fill-opacity="0.12" stroke="#F97316" stroke-width="1.2"/>
+                                    <text x="22" y="118" fill="#FDBA74" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">02. API PERMUKAAN (SURFACE FIRE)</text>
+                                    <text x="22" y="133" fill="#CBD5E1" font-family="Plus Jakarta Sans, sans-serif" font-size="10">Serasah kering &amp; semak belukar</text>
+                                </g>
+
+                                <!-- Layer 3 Band: Ground Fire (Bawah Tanah / Gambut) -->
+                                <g id="svg-band-bawah" class="cursor-pointer transition-opacity duration-300 opacity-55" onclick="selectStrata('bawah')">
+                                    <rect x="8" y="178" width="524" height="82" rx="8" fill="#D97706" fill-opacity="0.14" stroke="#FBBF24" stroke-width="1.2"/>
+                                    <text x="22" y="198" fill="#FDE68A" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">03. API BAWAH (GROUND FIRE / GAMBUT)</text>
+                                    <text x="22" y="213" fill="#CBD5E1" font-family="Plus Jakarta Sans, sans-serif" font-size="10">Bara merambat lambat di lapisan gambut</text>
+                                </g>
+
+                                <!-- Central Stylized Tree & Soil Visual -->
+                                <rect x="348" y="54" width="12" height="122" fill="#78716C"/>
+                                <polygon points="354,18 304,88 404,88" fill="#15803D"/>
+                                <polygon points="444,26 402,88 486,88" fill="#166534"/>
+                                <rect x="439" y="64" width="10" height="112" fill="#78716C"/>
+
+                                <!-- Crown Fire Flame Visual -->
+                                <path d="M398 32C398 32 414 44 414 58C414 66 407 72 398 72C389 72 382 66 382 58C382 49 390 40 398 32Z" fill="#EF4444"/>
+                                <path d="M398 46C398 46 406 53 406 60C406 64 402 68 398 68C394 68 390 64 390 60C390 55 394 50 398 46Z" fill="#FBBF24"/>
+
+                                <!-- Surface Fire Flame Visual -->
+                                <path d="M312 138C312 138 324 148 324 159C324 166 318 171 312 171C306 171 300 166 300 159C300 152 306 144 312 138Z" fill="#F97316"/>
+                                <path d="M472 142C472 142 482 150 482 160C482 166 477 171 472 171C467 171 462 166 462 160C462 154 467 147 472 142Z" fill="#FBBF24"/>
+
+                                <!-- Ground Fire Peat Ember Visual -->
+                                <ellipse cx="395" cy="222" rx="56" ry="18" fill="#B45309"/>
+                                <ellipse cx="395" cy="222" rx="30" ry="9" fill="#FBBF24"/>
+                            </svg>
+                        </div>
+
+                        <!-- Live Strata Inspector Readout -->
+                        <div class="lg:col-span-5 bg-charcoal-800 border border-white/10 rounded-xl p-6" id="strataInspector">
+                            <span id="strataBadge" class="inline-block font-mono text-[11px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-400/30 px-3 py-1 rounded-full mb-3">
+                                Tingkat Atas • Crown Fire
+                            </span>
+                            <h4 id="strataTitle" class="font-display font-bold text-2xl text-white mb-2.5">
+                                Api Tajuk (Crown Fire)
+                            </h4>
+                            <p id="strataDesc" class="text-slate-300 text-sm leading-relaxed mb-5">
+                                Membakar pucuk pohon tinggi dan melompat antar-pohon dengan bantuan angin. Paling spektakuler &amp; sulit dipadamkan dari darat.
+                            </p>
+                            <div class="space-y-2.5 pt-4 border-t border-white/10 font-mono text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Kecepatan Rambat:</span>
+                                    <span id="strataSpeed" class="text-white font-semibold">Sangat Cepat (Didorong Angin)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Metode Penanganan:</span>
+                                    <span id="strataAction" class="text-amberbrand font-semibold">Water Bombing &amp; TMC</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="dampak-container">
-                    <!-- NEGATIVE ITEMS -->
-                    <div class="dampak-card negatif bg-gradient-to-b from-red-900/20 to-transparent border border-red-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-red-400 mb-3"><i class="fa-solid fa-skull-crossbones text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Kerusakan Ekosistem</h3>
-                        <p class="text-gray-400 text-sm">Musnahnya flora langka dan habitat satwa liar endemik (orangutan, harimau).</p>
-                    </div>
-                    <div class="dampak-card negatif bg-gradient-to-b from-red-900/20 to-transparent border border-red-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-red-400 mb-3"><i class="fa-solid fa-earth-americas text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Perubahan Iklim</h3>
-                        <p class="text-gray-400 text-sm">Pelepasan gas rumah kaca masif mempercepat laju pemanasan global.</p>
-                    </div>
-                    <div class="dampak-card negatif bg-gradient-to-b from-red-900/20 to-transparent border border-red-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-red-400 mb-3"><i class="fa-solid fa-house-chimney-crack text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Dampak Sosial</h3>
-                        <p class="text-gray-400 text-sm">Warga kehilangan rumah, fasilitas publik tutup, aktivitas sosial lumpuh.</p>
-                    </div>
-                    <div class="dampak-card negatif bg-gradient-to-b from-red-900/20 to-transparent border border-red-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-red-400 mb-3"><i class="fa-solid fa-lungs-virus text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Polusi Udara (ISPA)</h3>
-                        <p class="text-gray-400 text-sm">Asap beracun (PM2.5) memicu lonjakan penyakit pernapasan, asma, dan iritasi mata.</p>
-                    </div>
-                    <div class="dampak-card negatif bg-gradient-to-b from-red-900/20 to-transparent border border-red-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-red-400 mb-3"><i class="fa-solid fa-chart-line-down text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Kerugian Ekonomi</h3>
-                        <p class="text-gray-400 text-sm">Lumpuhnya pertanian, penerbangan, pariwisata, serta biaya pemadaman triliunan.</p>
-                    </div>
-                    <div class="dampak-card negatif bg-gradient-to-b from-red-900/20 to-transparent border border-red-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-red-400 mb-3"><i class="fa-solid fa-water text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Bencana Lanjutan</h3>
-                        <p class="text-gray-400 text-sm">Hutan gundul tak mampu menyerap air, memicu banjir bandang & longsor saat hujan.</p>
+                <!-- 3 Strata Cards -->
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Card 1: Api Tajuk -->
+                    <div id="strata-card-tajuk" onclick="selectStrata('tajuk')" class="cursor-pointer bg-white border-2 border-red-500 rounded-2xl p-7 transition-all shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-red-700 bg-red-50 px-3 py-1 rounded-full">Tingkat Atas</span>
+                            <i class="fa-solid fa-wind text-red-600 text-lg"></i>
+                        </div>
+                        <h4 class="font-display font-bold text-xl text-ink mb-2.5">Api Tajuk (Crown Fire)</h4>
+                        <p class="text-ink-body text-sm leading-relaxed">
+                            Membakar pucuk pohon tinggi dan melompat antar-pohon dengan bantuan angin. Paling spektakuler &amp; sulit dipadamkan dari darat.
+                        </p>
                     </div>
 
-                    <!-- POSITIVE ITEMS (Hidden by default via JS initialization) -->
-                    <div class="dampak-card positif hidden bg-gradient-to-b from-emerald-900/20 to-transparent border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-emerald-400 mb-3"><i class="fa-solid fa-leaf text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Jaga Keanekaragaman</h3>
-                        <p class="text-gray-400 text-sm">Membersihkan gulma invasif, memberi ruang tanaman asli tumbuh seimbang.</p>
+                    <!-- Card 2: Api Permukaan -->
+                    <div id="strata-card-permukaan" onclick="selectStrata('permukaan')" class="cursor-pointer bg-white border border-line hover:border-ember rounded-2xl p-7 transition-all shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-ember bg-ember-soft px-3 py-1 rounded-full">Permukaan</span>
+                            <i class="fa-solid fa-fire text-ember text-lg"></i>
+                        </div>
+                        <h4 class="font-display font-bold text-xl text-ink mb-2.5">Api Permukaan (Surface Fire)</h4>
+                        <p class="text-ink-body text-sm leading-relaxed">
+                            Membakar serasah dedaunan kering dan semak belukar di atas tanah. Umumnya pemicu awal, dipadamkan dengan sekat bakar.
+                        </p>
                     </div>
-                    <div class="dampak-card positif hidden bg-gradient-to-b from-emerald-900/20 to-transparent border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-emerald-400 mb-3"><i class="fa-solid fa-bugs text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Habitat Baru</h3>
-                        <p class="text-gray-400 text-sm">Kayu mati jadi sarang baru/sumber nutrisi bagi serangga dan burung tertentu.</p>
-                    </div>
-                    <div class="dampak-card positif hidden bg-gradient-to-b from-emerald-900/20 to-transparent border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-emerald-400 mb-3"><i class="fa-solid fa-flask text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Perkaya Nutrisi Tanah</h3>
-                        <p class="text-gray-400 text-sm">Abu sisa bakaran kembalikan mineral (Kalium, Fosfor) ke tanah, percepat regenerasi.</p>
-                    </div>
-                    <div class="dampak-card positif hidden bg-gradient-to-b from-emerald-900/20 to-transparent border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-sm">
-                        <div class="text-emerald-400 mb-3"><i class="fa-solid fa-fire-burner text-2xl"></i></div>
-                        <h3 class="text-lg font-bold text-white mb-2">Kontrol Bahan Bakar</h3>
-                        <p class="text-gray-400 text-sm">Bakar serasah mati skala kecil mencegah penumpukan pemicu kebakaran raksasa.</p>
+
+                    <!-- Card 3: Api Bawah -->
+                    <div id="strata-card-bawah" onclick="selectStrata('bawah')" class="cursor-pointer bg-white border border-line hover:border-amber-600 rounded-2xl p-7 transition-all shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amberbrand-soft px-3 py-1 rounded-full">Bawah Tanah</span>
+                            <i class="fa-solid fa-smog text-amber-700 text-lg"></i>
+                        </div>
+                        <h4 class="font-display font-bold text-xl text-ink mb-2.5">Api Bawah (Ground Fire)</h4>
+                        <p class="text-ink-body text-sm leading-relaxed">
+                            Merambat perlahan di bawah tanah (lahan gambut tebal) tanpa nyala lidah api. Asap pekat, sangat sulit dideteksi &amp; dipadamkan.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SECTION: SIKLUS MITIGASI (Slide 21-25) -->
-    <section id="mitigasi" class="py-24 bg-forest-900 relative border-t border-white/5">
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/10 pb-6 gap-6">
+    <!-- ===================================================================== -->
+    <!-- 5. SECTION 6 PENYEBAB UTAMA — SINGLE-SLIDE FULL-STAGE AUTO-CAROUSEL   -->
+    <!-- ===================================================================== -->
+    <section id="penyebab" class="py-20 lg:py-28 bg-charcoal-900 text-white relative overflow-hidden">
+        <!-- Subtle Layered Vector Silhouette Backdrop -->
+        <div class="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+            <svg class="absolute bottom-0 left-0 w-full h-44" viewBox="0 0 1440 180" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 95C240 45 480 65 720 105C960 145 1200 75 1440 95V180H0V95Z" fill="#181E24"/>
+            </svg>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div>
-                    <span class="text-emerald-400 font-bold uppercase tracking-widest text-sm">Rantai Manajemen Bencana</span>
-                    <h2 class="text-3xl md:text-5xl font-heading font-bold text-white mt-2">PROTOKOL MITIGASI</h2>
+                    <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-amberbrand block mb-2.5">
+                        02 / Analisis Faktor Pemicu
+                    </span>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-[42px] uppercase tracking-tight text-white">
+                        6 Penyebab Utama Karhutla
+                    </h2>
                 </div>
-                <div class="flex gap-2 bg-black/20 p-1.5 rounded-xl backdrop-blur-md">
-                    <button onclick="switchTab('pra')" id="tab-btn-pra" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white transition-all shadow-md">Pra-Bencana</button>
-                    <button onclick="switchTab('tanggap')" id="tab-btn-tanggap" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-all">Tanggap Darurat</button>
-                    <button onclick="switchTab('pasca')" id="tab-btn-pasca" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-all">Pasca-Bencana</button>
-                </div>
+                <p class="text-slate-300 text-sm sm:text-base max-w-md leading-relaxed">
+                    Kombinasi antara faktor antropogenik (aktivitas manusia) dan dinamika iklim ekstrem memicu terjadinya kebakaran hutan dan lahan.
+                </p>
             </div>
 
-            <div class="max-w-5xl mx-auto min-h-[300px]">
-                <!-- PRA -->
-                <div id="content-pra" class="grid sm:grid-cols-2 gap-6 animate-[fadeIn_0.5s_ease-out]">
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-emerald-500">
-                        <div class="text-emerald-400 text-2xl mt-1"><i class="fa-solid fa-ban"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Pencegahan</h4>
-                            <p class="text-gray-400 text-sm">Penegakan hukum tegas larangan bakar lahan dan sosialisasi metode pertanian tanpa bakar (*zero burning*).</p>
+            <!-- Single-Slide Full-Stage Auto-Carousel Container -->
+            <div id="causeCarousel" class="bg-charcoal-800 border border-white/10 rounded-3xl overflow-hidden shadow-2xl" tabindex="0" aria-roledescription="carousel" aria-label="6 Penyebab Utama Karhutla">
+                <!-- Slim Auto-Progress Indicator -->
+                <div class="w-full h-1 bg-white/10 overflow-hidden">
+                    <div id="carouselProgress" class="h-full bg-amberbrand carousel-progress-active"></div>
+                </div>
+
+                <!-- Slides Track (Strictly 1 Slide Visible at a Time) -->
+                <div class="overflow-hidden relative">
+                    <div id="causeTrack" class="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform">
+
+                        <!-- SLIDE 01: Pembukaan Lahan dengan Membakar -->
+                        <div class="cause-slide w-full flex-shrink-0 p-7 sm:p-10 lg:p-14">
+                            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div class="lg:col-span-6">
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <span class="font-mono text-xs font-bold bg-amberbrand text-charcoal-900 px-3 py-1 rounded-full">FAKTOR 01 / 06</span>
+                                        <span class="font-mono text-xs uppercase tracking-wider text-ember font-semibold">Antropogenik</span>
+                                    </div>
+                                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-white uppercase tracking-tight leading-tight mb-4">
+                                        Pembukaan Lahan dengan Membakar
+                                    </h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-7">
+                                        Metode tebas-bakar dipilih oknum karena dianggap cara tercepat &amp; termurah membersihkan lahan, meski berisiko tinggi lepas kendali dan merembet ke kawasan sekitarnya.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 pt-5 border-t border-white/10 font-mono text-xs">
+                                        <div>
+                                            <span class="text-slate-400 block">KATEGORI PEMICU</span>
+                                            <span class="text-white font-semibold mt-1 block">Aktivitas Manusia</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block">TINGKAT ESKALASI</span>
+                                            <span class="text-amberbrand font-semibold mt-1 block">Sangat Tinggi</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-6">
+                                    <!-- Bespoke SVG Illustration 01: Slash and Burn Land Clearing -->
+                                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 480 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi pembukaan lahan dengan cara membakar">
+                                        <rect width="480" height="300" fill="#151B20"/>
+                                        <path d="M0 220C140 205 320 208 480 225V300H0V220Z" fill="#29211D"/>
+                                        <!-- Cleared Stumps -->
+                                        <rect x="64" y="198" width="16" height="24" rx="2" fill="#78350F"/>
+                                        <rect x="114" y="202" width="14" height="20" rx="2" fill="#78350F"/>
+                                        <!-- Uncontrolled Fire Spreading to Forest Edge -->
+                                        <path d="M195 142C195 142 224 166 224 192C224 209 211 222 195 222C179 222 166 209 166 192C166 177 180 158 195 142Z" fill="#EA580C"/>
+                                        <path d="M195 168C195 168 210 181 210 196C210 206 203 213 195 213C187 213 180 206 180 196C180 186 188 176 195 168Z" fill="#FBBF24"/>
+                                        <path d="M256 164C256 164 276 181 276 200C276 212 267 221 256 221C245 221 236 212 236 200C236 189 246 175 256 164Z" fill="#F97316"/>
+                                        <!-- Smoke Clouds -->
+                                        <circle cx="215" cy="108" r="24" fill="#64748B" fill-opacity="0.35"/>
+                                        <circle cx="242" cy="92" r="30" fill="#94A3B8" fill-opacity="0.3"/>
+                                        <circle cx="276" cy="78" r="26" fill="#CBD5E1" fill-opacity="0.22"/>
+                                        <!-- Adjacent Threatened Forest Trees -->
+                                        <rect x="348" y="156" width="8" height="66" fill="#57534E"/>
+                                        <polygon points="352,96 318,166 386,166" fill="#15803D"/>
+                                        <rect x="408" y="148" width="8" height="74" fill="#57534E"/>
+                                        <polygon points="412,84 374,160 450,160" fill="#166534"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-emerald-500">
-                        <div class="text-emerald-400 text-2xl mt-1"><i class="fa-solid fa-satellite-dish"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Deteksi Dini Hotspot</h4>
-                            <p class="text-gray-400 text-sm">Memantau sebaran titik panas satelit BMKG untuk deteksi awal sebelum api membesar.</p>
+
+                        <!-- SLIDE 02: Kelalaian Manusia -->
+                        <div class="cause-slide w-full flex-shrink-0 p-7 sm:p-10 lg:p-14">
+                            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div class="lg:col-span-6">
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <span class="font-mono text-xs font-bold bg-amberbrand text-charcoal-900 px-3 py-1 rounded-full">FAKTOR 02 / 06</span>
+                                        <span class="font-mono text-xs uppercase tracking-wider text-rose-400 font-semibold">Kelalaian Publik</span>
+                                    </div>
+                                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-white uppercase tracking-tight leading-tight mb-4">
+                                        Kelalaian Manusia
+                                    </h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-7">
+                                        Membuang puntung rokok sembarangan, meninggalkan api unggun yang tak padam tuntas, atau membakar sampah di dekat semak saat angin bertiup kencang.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 pt-5 border-t border-white/10 font-mono text-xs">
+                                        <div>
+                                            <span class="text-slate-400 block">TITIK AWAL API</span>
+                                            <span class="text-white font-semibold mt-1 block">Puntung &amp; Api Unggun</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block">MITIGASI KUNCI</span>
+                                            <span class="text-amberbrand font-semibold mt-1 block">Disiplin &amp; Patroli</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-6">
+                                    <!-- Bespoke SVG Illustration 02: Human Negligence (Cigarette Spark & Dry Litter) -->
+                                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 480 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi kelalaian manusia membuang puntung rokok">
+                                        <rect width="480" height="300" fill="#151B20"/>
+                                        <path d="M0 225H480V300H0V225Z" fill="#29211D"/>
+                                        <!-- Dry Leaf Litter & Twigs -->
+                                        <path d="M90 225L140 208M130 225L175 212M290 225L345 206M335 225L390 214" stroke="#92400E" stroke-width="4" stroke-linecap="round"/>
+                                        <!-- Discarded Lit Cigarette -->
+                                        <g transform="rotate(-14 210 198)">
+                                            <rect x="150" y="192" width="32" height="12" rx="2" fill="#D97706"/>
+                                            <rect x="182" y="192" width="68" height="12" rx="2" fill="#F8FAFC"/>
+                                            <rect x="250" y="192" width="10" height="12" rx="2" fill="#EA580C"/>
+                                        </g>
+                                        <!-- Rising Ember Sparks & Ignition -->
+                                        <circle cx="272" cy="176" r="4" fill="#FBBF24"/>
+                                        <circle cx="288" cy="154" r="3" fill="#EA580C"/>
+                                        <circle cx="264" cy="142" r="2.5" fill="#FBBF24"/>
+                                        <path d="M294 176C294 176 312 190 312 206C312 216 304 224 294 224C284 224 276 216 276 206C276 196 285 185 294 176Z" fill="#EA580C"/>
+                                        <path d="M294 192C294 192 303 200 303 209C303 215 299 219 294 219C289 219 285 215 285 209C285 203 290 197 294 192Z" fill="#FBBF24"/>
+                                        <!-- Warning Ring -->
+                                        <circle cx="262" cy="186" r="68" stroke="#FBBF24" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="5 5"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-emerald-500">
-                        <div class="text-emerald-400 text-2xl mt-1"><i class="fa-solid fa-binoculars"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Patroli Rawan</h4>
-                            <p class="text-gray-400 text-sm">Pengerahan tim terpadu (Manggala Agni, TNI/Polri, MPA) di kawasan risiko tinggi kemarau.</p>
+
+                        <!-- SLIDE 03: Kondisi Cuaca Panas & Musim Kemarau -->
+                        <div class="cause-slide w-full flex-shrink-0 p-7 sm:p-10 lg:p-14">
+                            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div class="lg:col-span-6">
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <span class="font-mono text-xs font-bold bg-amberbrand text-charcoal-900 px-3 py-1 rounded-full">FAKTOR 03 / 06</span>
+                                        <span class="font-mono text-xs uppercase tracking-wider text-amberbrand font-semibold">Anomali Iklim</span>
+                                    </div>
+                                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-white uppercase tracking-tight leading-tight mb-4">
+                                        Kondisi Cuaca Panas &amp; Musim Kemarau
+                                    </h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-7">
+                                        Suhu tinggi dan minim curah hujan (anomali El Niño) menyusutkan kadar air vegetasi secara drastis, menjadikannya bahan bakar kering yang sangat mudah terpercik.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 pt-5 border-t border-white/10 font-mono text-xs">
+                                        <div>
+                                            <span class="text-slate-400 block">FENOMENA GLOBAL</span>
+                                            <span class="text-white font-semibold mt-1 block">El Niño &amp; Heatwave</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block">KONDISI VEGETASI</span>
+                                            <span class="text-amberbrand font-semibold mt-1 block">Kadar Air Kritis</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-6">
+                                    <!-- Bespoke SVG Illustration 03: Scorching Sun & Drought -->
+                                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 480 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi cuaca panas ekstrem dan musim kemarau">
+                                        <rect width="480" height="300" fill="#151B20"/>
+                                        <!-- Scorching Sun -->
+                                        <circle cx="340" cy="84" r="46" fill="#FBBF24" fill-opacity="0.18"/>
+                                        <circle cx="340" cy="84" r="30" fill="#FBBF24"/>
+                                        <!-- Heat Waves -->
+                                        <path d="M120 110C135 98 150 122 165 110M190 95C205 83 220 107 235 95M145 145C160 133 175 157 190 145" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+                                        <!-- Parched Ground with Cracks -->
+                                        <rect x="0" y="218" width="480" height="82" fill="#3B271E"/>
+                                        <path d="M70 218L92 248L76 280M210 218L228 255L245 290M360 218L344 252L364 285" stroke="#1E1410" stroke-width="2.5" stroke-linecap="round"/>
+                                        <!-- Withered Leafless Trees -->
+                                        <path d="M135 218V148M135 174L108 152M135 164L162 142M245 218V160M245 182L222 164M245 175L268 158" stroke="#A8A29E" stroke-width="4" stroke-linecap="round"/>
+                                        <!-- Thermometer Pill -->
+                                        <rect x="36" y="34" width="118" height="28" rx="14" fill="#EA580C"/>
+                                        <text x="95" y="52" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">SUHU &gt; 36°C</text>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-emerald-500">
-                        <div class="text-emerald-400 text-2xl mt-1"><i class="fa-solid fa-users"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Edukasi Masyarakat</h4>
-                            <p class="text-gray-400 text-sm">Penyuluhan tata kelola sekat bakar desa & bahaya karhutla bagi kesehatan dan ekonomi.</p>
+
+                        <!-- SLIDE 04: Angin Kencang -->
+                        <div class="cause-slide w-full flex-shrink-0 p-7 sm:p-10 lg:p-14">
+                            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div class="lg:col-span-6">
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <span class="font-mono text-xs font-bold bg-amberbrand text-charcoal-900 px-3 py-1 rounded-full">FAKTOR 04 / 06</span>
+                                        <span class="font-mono text-xs uppercase tracking-wider text-sky-400 font-semibold">Dinamika Atmosfer</span>
+                                    </div>
+                                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-white uppercase tracking-tight leading-tight mb-4">
+                                        Angin Kencang
+                                    </h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-7">
+                                        Menyuplai oksigen berlimpah ke pusat pembakaran serta menerbangkan loncatan bara (<em class="text-white">firebrands</em>), mempercepat penyebaran dan lompatan api melewati sekat bakar.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 pt-5 border-t border-white/10 font-mono text-xs">
+                                        <div>
+                                            <span class="text-slate-400 block">MEKANISME SEBAR</span>
+                                            <span class="text-white font-semibold mt-1 block">Loncatan Firebrands</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block">SUPLAI PEMBAKARAN</span>
+                                            <span class="text-sky-400 font-semibold mt-1 block">Oksigen Tinggi</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-6">
+                                    <!-- Bespoke SVG Illustration 04: Strong Wind & Flying Firebrands -->
+                                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 480 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi angin kencang menerbangkan bara api">
+                                        <rect width="480" height="300" fill="#151B20"/>
+                                        <rect x="0" y="226" width="480" height="74" fill="#1E293B"/>
+                                        <!-- Wind Streamlines -->
+                                        <path d="M36 92H260C282 92 292 74 278 62" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+                                        <path d="M52 128H345C368 128 378 110 364 98" stroke="#7DD3FC" stroke-width="2.5" stroke-linecap="round"/>
+                                        <path d="M28 164H230" stroke="#38BDF8" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round"/>
+                                        <!-- Origin Fire on Left -->
+                                        <path d="M110 144C110 144 138 168 138 196C138 213 125 226 110 226C95 226 82 213 82 196C82 180 96 160 110 144Z" fill="#EA580C"/>
+                                        <path d="M110 172C110 172 124 185 124 200C124 210 118 217 110 217C102 217 96 210 96 200C96 190 103 180 110 172Z" fill="#FBBF24"/>
+                                        <!-- Airborne Firebrands Jumping Right -->
+                                        <circle cx="195" cy="148" r="5" fill="#FBBF24"/>
+                                        <circle cx="248" cy="136" r="4.5" fill="#EA580C"/>
+                                        <circle cx="304" cy="154" r="5" fill="#FBBF24"/>
+                                        <!-- Secondary Spot Fire Ignited Downwind -->
+                                        <path d="M368 168C368 168 388 185 388 205C388 217 379 226 368 226C357 226 348 217 348 205C348 193 358 179 368 168Z" fill="#EA580C"/>
+                                        <path d="M368 186C368 186 378 195 378 206C378 213 373 218 368 218C363 218 358 213 358 206C358 199 363 192 368 186Z" fill="#FBBF24"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- SLIDE 05: Lahan Gambut yang Kering -->
+                        <div class="cause-slide w-full flex-shrink-0 p-7 sm:p-10 lg:p-14">
+                            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div class="lg:col-span-6">
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <span class="font-mono text-xs font-bold bg-amberbrand text-charcoal-900 px-3 py-1 rounded-full">FAKTOR 05 / 06</span>
+                                        <span class="font-mono text-xs uppercase tracking-wider text-emerald-400 font-semibold">Degradasi Hidrologi</span>
+                                    </div>
+                                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-white uppercase tracking-tight leading-tight mb-4">
+                                        Lahan Gambut yang Kering
+                                    </h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-7">
+                                        Drainase kanal berlebihan mengeringkan kubah gambut. Material organik tebal ini berubah menjadi bahan bakar padat yang membara di bawah tanah dalam waktu lama.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 pt-5 border-t border-white/10 font-mono text-xs">
+                                        <div>
+                                            <span class="text-slate-400 block">ZONA RENTAN</span>
+                                            <span class="text-white font-semibold mt-1 block">KHG Terdrainase</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block">KARAKTER API</span>
+                                            <span class="text-amberbrand font-semibold mt-1 block">Bara Bawah Tanah</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-6">
+                                    <!-- Bespoke SVG Illustration 05: Drained Peatland & Subterranean Ember -->
+                                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 480 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi lahan gambut kering dengan bara api di bawah permukaan">
+                                        <rect width="480" height="300" fill="#151B20"/>
+                                        <!-- Surface Vegetation & Drainage Canal Cut -->
+                                        <path d="M0 130H165L185 162H235L255 130H480V300H0V130Z" fill="#3B2922"/>
+                                        <!-- Low Water Level in Canal -->
+                                        <rect x="185" y="150" width="50" height="12" fill="#38BDF8" fill-opacity="0.55"/>
+                                        <!-- Deep Peat Layer -->
+                                        <rect x="0" y="168" width="480" height="132" fill="#241814"/>
+                                        <!-- Water Table Dashed Line -->
+                                        <line x1="0" y1="258" x2="480" y2="258" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="6 4"/>
+                                        <text x="18" y="252" fill="#7DD3FC" font-family="JetBrains Mono, monospace" font-size="9">MUKA AIR TANAH TURUN</text>
+                                        <!-- Smoldering Underground Peat Pocket -->
+                                        <ellipse cx="348" cy="212" rx="64" ry="26" fill="#9A3412"/>
+                                        <ellipse cx="348" cy="212" rx="38" ry="14" fill="#EA580C"/>
+                                        <ellipse cx="348" cy="212" rx="18" ry="6" fill="#FBBF24"/>
+                                        <!-- Smoke Rising from Soil Fissures -->
+                                        <path d="M325 184C320 156 332 132 326 102M368 184C374 154 362 128 368 96" stroke="#CBD5E1" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 4"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SLIDE 06: Sambaran Petir -->
+                        <div class="cause-slide w-full flex-shrink-0 p-7 sm:p-10 lg:p-14">
+                            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div class="lg:col-span-6">
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <span class="font-mono text-xs font-bold bg-amberbrand text-charcoal-900 px-3 py-1 rounded-full">FAKTOR 06 / 06</span>
+                                        <span class="font-mono text-xs uppercase tracking-wider text-indigo-400 font-semibold">Fenomena Alam</span>
+                                    </div>
+                                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-white uppercase tracking-tight leading-tight mb-4">
+                                        Sambaran Petir
+                                    </h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-7">
+                                        Faktor murni alam berupa petir kering (<em class="text-white">dry lightning</em>) tanpa disertai hujan lebat dapat menyambar tajuk pohon tua dan memicu api langsung di hutan terpencil.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 pt-5 border-t border-white/10 font-mono text-xs">
+                                        <div>
+                                            <span class="text-slate-400 block">KLASIFIKASI</span>
+                                            <span class="text-white font-semibold mt-1 block">Pemicu Alami Murni</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block">FENOMENA</span>
+                                            <span class="text-indigo-300 font-semibold mt-1 block">Dry Lightning</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-6">
+                                    <!-- Bespoke SVG Illustration 06: Dry Lightning Strike -->
+                                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 480 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi sambaran petir kering memicu kebakaran hutan">
+                                        <rect width="480" height="300" fill="#151B20"/>
+                                        <!-- Storm Cloud -->
+                                        <path d="M145 78C145 58 162 42 182 42C190 28 206 20 224 20C248 20 268 37 272 60C288 62 300 75 300 92C300 109 286 122 268 122H165C148 122 135 109 135 92C135 84 139 78 145 78Z" fill="#334155"/>
+                                        <!-- Lightning Bolt -->
+                                        <polygon points="228,118 202,166 226,166 212,208 258,154 232,154 248,118" fill="#FBBF24"/>
+                                        <!-- Ground & Forest -->
+                                        <rect x="0" y="232" width="480" height="68" fill="#1E293B"/>
+                                        <rect x="116" y="182" width="7" height="50" fill="#475569"/>
+                                        <polygon points="119.5,134 92,188 147,188" fill="#15803D"/>
+                                        <!-- Struck Tree & Ignition -->
+                                        <rect x="226" y="186" width="8" height="46" fill="#78350F"/>
+                                        <polygon points="230,142 200,192 260,192" fill="#166534"/>
+                                        <circle cx="230" cy="186" r="18" fill="#EA580C" fill-opacity="0.85"/>
+                                        <circle cx="230" cy="186" r="9" fill="#FBBF24"/>
+                                        <rect x="342" y="178" width="7" height="54" fill="#475569"/>
+                                        <polygon points="345.5,126 316,184 375,184" fill="#15803D"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-                <!-- TANGGAP -->
-                <div id="content-tanggap" class="hidden grid sm:grid-cols-2 gap-6 animate-[fadeIn_0.5s_ease-out]">
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-red-500">
-                        <div class="text-red-400 text-2xl mt-1"><i class="fa-solid fa-fire-extinguisher"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Pemadaman Cepat</h4>
-                            <p class="text-gray-400 text-sm">Operasi darat, *water bombing* helikopter, dan Teknologi Modifikasi Cuaca (TMC/Hujan Buatan).</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-red-500">
-                        <div class="text-red-400 text-2xl mt-1"><i class="fa-solid fa-truck-medical"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Evakuasi</h4>
-                            <p class="text-gray-400 text-sm">Memindahkan warga rentan (balita/lansia) dari ancaman api langsung dan zona asap beracun.</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-red-500">
-                        <div class="text-red-400 text-2xl mt-1"><i class="fa-solid fa-mask-face"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Perlindungan Asap</h4>
-                            <p class="text-gray-400 text-sm">Distribusi masker N95, meliburkan sekolah, dan menyiapkan *safe room* berfiltrasi udara.</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-red-500">
-                        <div class="text-red-400 text-2xl mt-1"><i class="fa-solid fa-hand-holding-medical"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Penanganan Medis</h4>
-                            <p class="text-gray-400 text-sm">Membuka posko darurat ISPA, suplai oksigen, obat-obatan, serta logistik air bersih.</p>
-                        </div>
-                    </div>
-                </div>
+                <!-- Bottom Carousel Controls: Elongated Active Pill + Dots ('— • • • • •') & Prev/Next Buttons -->
+                <div class="bg-charcoal-950/80 border-t border-white/10 px-6 sm:px-10 py-4 flex items-center justify-between gap-4">
+                    <!-- Prev Button -->
+                    <button id="prevSlideBtn" type="button" aria-label="Slide penyebab sebelumnya" class="w-10 h-10 rounded-full border border-white/15 hover:border-amberbrand hover:bg-amberbrand hover:text-charcoal-900 text-white flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-arrow-left text-xs"></i>
+                    </button>
 
-                <!-- PASCA -->
-                <div id="content-pasca" class="hidden grid sm:grid-cols-2 gap-6 animate-[fadeIn_0.5s_ease-out]">
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-blue-500">
-                        <div class="text-blue-400 text-2xl mt-1"><i class="fa-solid fa-mountain"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Rehabilitasi Lahan</h4>
-                            <p class="text-gray-400 text-sm">Menstabilkan tanah bekas terbakar mencegah erosi dan sedimentasi parah saat hujan tiba.</p>
-                        </div>
+                    <!-- Elongated Active Pill + Circular Dots Indicator -->
+                    <div id="carouselDots" class="flex items-center justify-center gap-2.5" role="tablist" aria-label="Navigasi slide penyebab">
+                        <!-- Populated dynamically by JS to enforce exact active pill + dot states -->
                     </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-blue-500">
-                        <div class="text-blue-400 text-2xl mt-1"><i class="fa-solid fa-seedling"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Reboisasi</h4>
-                            <p class="text-gray-400 text-sm">Menanam bibit pohon endemik (tahan api) untuk mengembalikan fungsi tutupan kanopi hutan.</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-blue-500">
-                        <div class="text-blue-400 text-2xl mt-1"><i class="fa-solid fa-droplet"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Pemulihan Gambut</h4>
-                            <p class="text-gray-400 text-sm">Restorasi hidrologis (*rewetting*) via sekat kanal (*canal blocking*) agar gambut kembali basah.</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl flex gap-4 items-start border-l-4 border-blue-500">
-                        <div class="text-blue-400 text-2xl mt-1"><i class="fa-solid fa-shield-halved"></i></div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-1">Pemantauan & Hukum</h4>
-                            <p class="text-gray-400 text-sm">Awasi sisa bara tersembunyi & proses penegakan hukum bagi pelaku pembakaran sengaja.</p>
-                        </div>
-                    </div>
+
+                    <!-- Next Button -->
+                    <button id="nextSlideBtn" type="button" aria-label="Slide penyebab berikutnya" class="w-10 h-10 rounded-full border border-white/15 hover:border-amberbrand hover:bg-amberbrand hover:text-charcoal-900 text-white flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SECTION: STUDI KASUS (Slide 26) -->
-    <section id="studi-kasus" class="py-20 bg-forest-950">
-        <div class="container mx-auto px-4 lg:px-8 max-w-6xl">
-            <div class="glass-panel-dark rounded-3xl overflow-hidden border border-white/5 flex flex-col md:flex-row">
-                <div class="md:w-1/2 relative min-h-[300px]">
-                    <img src="https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?auto=format&fit=crop&w=800&q=80" alt="White Rock Canada Fire" class="absolute inset-0 w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent to-forest-950 md:block hidden"></div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-forest-950 to-transparent md:hidden"></div>
-                    <div class="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-lg text-xs backdrop-blur-md text-white border border-white/20">
-                        <i class="fa-brands fa-youtube text-red-500 mr-1"></i> CTV News, 13 Juli 2021
-                    </div>
+    <!-- ===================================================================== -->
+    <!-- 6. SECTION DUALITAS DAMPAK (#dampak - Soft Slate #F8FAFC)             -->
+    <!-- ===================================================================== -->
+    <section id="dampak" class="py-20 lg:py-28 bg-surface-slate border-b border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-line pb-8 mb-10">
+                <div>
+                    <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-ember block mb-2.5">
+                        03 / Neraca Ekologi &amp; Sosial
+                    </span>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-[42px] text-ink tracking-tight">
+                        Dualitas Dampak Kebakaran
+                    </h2>
+                    <p class="text-ink-body text-sm sm:text-base mt-2 max-w-xl leading-relaxed">
+                        Bandingkan dampak destruktif akibat karhutla tak terkendali dengan peran ekologis kebakaran alami skala kecil yang terkontrol.
+                    </p>
                 </div>
-                <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative z-10">
-                    <span class="text-flame text-xs font-bold uppercase tracking-widest mb-2">Studi Kasus Internasional</span>
-                    <h3 class="text-3xl font-heading font-bold text-white mb-4">WHITE ROCK, KANADA (2021)</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                        Dokumentasi visual memperlihatkan kebakaran dahsyat melanda British Columbia. Dipicu gelombang panas ekstrem (*heat dome*), api membakar vegetasi konifer memicu <strong class="text-white">Api Tajuk (Crown Fire)</strong>. Ratusan insiden terjadi serentak, membuktikan api dapat merusak ekosistem luas dan menurunkan kualitas udara secara global lintas batas negara.
+
+                <!-- Segmented Filter Tabs -->
+                <div class="inline-flex bg-white p-1.5 rounded-full border border-line shadow-sm self-start lg:self-auto" role="tablist" aria-label="Filter kategori dampak">
+                    <button type="button" id="btn-negatif" onclick="filterDampak('negatif')" class="px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-ember text-white shadow-sm">
+                        Dampak Negatif (6)
+                    </button>
+                    <button type="button" id="btn-positif" onclick="filterDampak('positif')" class="px-5 py-2.5 rounded-full text-xs font-bold transition-all text-ink-body hover:text-ink">
+                        Dampak Positif Alami (4)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dampak Cards Grid -->
+            <div id="dampak-container" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 6 NEGATIVE IMPACTS -->
+                <div class="dampak-card negatif bg-white border border-line hover:border-ember/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-skull-crossbones"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-ink-muted">01 • EKOLOGI</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Kerusakan Ekosistem</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Musnahnya flora langka serta hilangnya habitat alami satwa liar endemik seperti orangutan dan harimau.
+                    </p>
+                </div>
+
+                <div class="dampak-card negatif bg-white border border-line hover:border-ember/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-earth-americas"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-ink-muted">02 • ATMOSFER</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Perubahan Iklim</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Pelepasan emisi karbon dan gas rumah kaca secara masif—terutama dari lahan gambut—mempercepat laju pemanasan global.
+                    </p>
+                </div>
+
+                <div class="dampak-card negatif bg-white border border-line hover:border-ember/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-house-chimney-crack"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-ink-muted">03 • SOSIAL</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Dampak Sosial</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Masyarakat kehilangan tempat tinggal, sekolah dan fasilitas publik terpaksa tutup, serta aktivitas sosial warga lumpuh.
+                    </p>
+                </div>
+
+                <div class="dampak-card negatif bg-white border border-line hover:border-ember/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-lungs-virus"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-ink-muted">04 • KESEHATAN</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Polusi Udara</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Kabut asap pekat bermuatan partikulat halus (PM2.5) memicu lonjakan kasus ISPA, asma akut, dan gangguan iritasi mata.
+                    </p>
+                </div>
+
+                <div class="dampak-card negatif bg-white border border-line hover:border-ember/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-ink-muted">05 • EKONOMI</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Kerugian Ekonomi</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Terganggunya sektor pertanian, pembatalan jalur penerbangan, lesunya pariwisata, serta beban biaya pemadaman triliunan rupiah.
+                    </p>
+                </div>
+
+                <div class="dampak-card negatif bg-white border border-line hover:border-ember/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-water"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-ink-muted">06 • HIDROLOGI</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Bencana Lanjutan</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Lahan gundul bekas terbakar kehilangan daya serap air sehingga memicu banjir bandang dan tanah longsor saat musim hujan tiba.
+                    </p>
+                </div>
+
+                <!-- 4 POSITIVE NATURAL IMPACTS -->
+                <div class="dampak-card positif hidden bg-white border border-line hover:border-forest/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-forest">01 • REGENERASI</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Menjaga Keanekaragaman Hayati</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Membersihkan gulma invasif yang mendominasi lantai hutan, memberi ruang dan cahaya bagi spesies tanaman asli untuk tumbuh seimbang.
+                    </p>
+                </div>
+
+                <div class="dampak-card positif hidden bg-white border border-line hover:border-forest/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-bugs"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-forest">02 • MIKROHABITAT</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Menciptakan Habitat Baru</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Batang kayu mati hasil kebakaran alami skala kecil menjadi ruang bersarang dan sumber nutrisi bagi serangga pengurai serta burung tertentu.
+                    </p>
+                </div>
+
+                <div class="dampak-card positif hidden bg-white border border-line hover:border-forest/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-forest">03 • MINERAL TANAH</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Memperkaya Nutrisi Tanah</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Abu organik sisa pembakaran mengembalikan unsur hara penting seperti Kalium dan Fosfor ke tanah untuk mempercepat suksesi tumbuhan baru.
+                    </p>
+                </div>
+
+                <div class="dampak-card positif hidden bg-white border border-line hover:border-forest/40 rounded-2xl p-7 transition-all shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold text-forest">04 • REDUKSI BEBAN</span>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-ink mb-2">Mengontrol Pertumbuhan Berlebih</h3>
+                    <p class="text-ink-body text-sm leading-relaxed">
+                        Pembakaran terkendali (<em class="text-ink">prescribed burning</em>) mengurangi akumulasi serasah kering berlebih yang berpotensi memicu kebakaran raksasa.
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SECTION: TIM KELOMPOK (Materi PPT Awal) -->
-    <section id="tim" class="py-24 bg-forest-900 relative border-t border-white/10">
-        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-30"></div>
-        <div class="container mx-auto px-4 lg:px-8">
-            <div class="text-center mb-16">
-                <span class="text-emerald-400 font-bold uppercase tracking-widest text-sm">Pengembang Platform</span>
-                <h2 class="text-3xl md:text-4xl font-heading font-bold text-white mt-2">TIM KELOMPOK 6</h2>
-                <div class="w-16 h-1 bg-emerald-500 mx-auto mt-4 rounded-full"></div>
+    <!-- ===================================================================== -->
+    <!-- 7. SECTION PROTOKOL MITIGASI (#mitigasi - Crisp White #FFFFFF)        -->
+    <!-- ===================================================================== -->
+    <section id="mitigasi" class="py-20 lg:py-28 bg-surface-white border-b border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-line pb-8 mb-10">
+                <div>
+                    <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-forest block mb-2.5">
+                        04 / Siklus Manajemen Bencana
+                    </span>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-[42px] text-ink tracking-tight">
+                        Protokol Mitigasi 3 Fase
+                    </h2>
+                </div>
+
+                <!-- 3-Phase Disaster Cycle Tab Controls -->
+                <div class="inline-flex flex-wrap gap-1.5 bg-surface-slate p-1.5 rounded-full border border-line self-start lg:self-auto" role="tablist" aria-label="Fase mitigasi bencana">
+                    <button type="button" id="tab-btn-pra" onclick="switchTab('pra')" class="px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-charcoal-900 text-white shadow-sm">
+                        01. Pra-Bencana
+                    </button>
+                    <button type="button" id="tab-btn-tanggap" onclick="switchTab('tanggap')" class="px-5 py-2.5 rounded-full text-xs font-bold transition-all text-ink-body hover:text-ink">
+                        02. Tanggap Darurat
+                    </button>
+                    <button type="button" id="tab-btn-pasca" onclick="switchTab('pasca')" class="px-5 py-2.5 rounded-full text-xs font-bold transition-all text-ink-body hover:text-ink">
+                        03. Pascabencana
+                    </button>
+                </div>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
-                <!-- Data Tim dari Request -->
-                <div class="glass-panel w-full sm:w-[45%] md:w-[30%] lg:w-[18%] p-6 rounded-2xl text-center border-t-2 border-t-emerald-500 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-white/5 rounded-full mx-auto flex items-center justify-center text-xl text-emerald-400 mb-4 border border-white/10"><i class="fa-solid fa-user-astronaut"></i></div>
-                    <h4 class="font-bold text-white text-sm">Yunita Rachmawati</h4>
-                    <p class="text-xs font-mono text-emerald-400 mt-1">124250151</p>
-                </div>
-                
-                <div class="glass-panel w-full sm:w-[45%] md:w-[30%] lg:w-[18%] p-6 rounded-2xl text-center border-t-2 border-t-emerald-500 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-white/5 rounded-full mx-auto flex items-center justify-center text-xl text-emerald-400 mb-4 border border-white/10"><i class="fa-solid fa-user-astronaut"></i></div>
-                    <h4 class="font-bold text-white text-sm">Sayyira Ulhaq R.</h4>
-                    <p class="text-xs font-mono text-emerald-400 mt-1">124250156</p>
+            <!-- Phase Panels -->
+            <div class="max-w-6xl mx-auto">
+                <!-- PHASE 01: PRA-BENCANA -->
+                <div id="content-pra" class="panel-reveal">
+                    <div class="bg-forest-soft border border-forest/20 rounded-2xl px-6 py-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span class="font-mono text-xs font-bold uppercase tracking-wider text-forest">
+                            FASE 01 • PENCEGAHAN &amp; KESIAPSIAGAAN
+                        </span>
+                        <span class="text-xs text-forest-dark font-medium">Fokus: Eliminasi pemicu awal &amp; pemantauan satelit rutin</span>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="bg-white border border-line border-l-4 border-l-forest rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Pencegahan</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Penegakan hukum tegas larangan bakar lahan dan sosialisasi metode pertanian tanpa bakar (<em class="text-ink">zero burning</em>).</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-forest rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-satellite-dish"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Deteksi Dini Hotspot</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Memantau sebaran titik panas satelit BMKG &amp; NASA VIIRS untuk deteksi awal sebelum api membesar.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-forest rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-binoculars"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Patroli Rawan</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Pengerahan tim terpadu (Manggala Agni, TNI/Polri, MPA) di kawasan risiko tinggi pada puncak musim kemarau.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-forest rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-forest-soft text-forest flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Edukasi Masyarakat</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Penyuluhan tata kelola sekat bakar desa serta edukasi bahaya karhutla bagi kesehatan dan ekonomi warga.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="glass-panel w-full sm:w-[45%] md:w-[30%] lg:w-[18%] p-6 rounded-2xl text-center border-t-2 border-t-emerald-500 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-white/5 rounded-full mx-auto flex items-center justify-center text-xl text-emerald-400 mb-4 border border-white/10"><i class="fa-solid fa-user-astronaut"></i></div>
-                    <h4 class="font-bold text-white text-sm">Amalia Aryanti</h4>
-                    <p class="text-xs font-mono text-emerald-400 mt-1">124250158</p>
+                <!-- PHASE 02: TANGGAP DARURAT -->
+                <div id="content-tanggap" class="hidden panel-reveal">
+                    <div class="bg-ember-soft border border-ember/20 rounded-2xl px-6 py-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span class="font-mono text-xs font-bold uppercase tracking-wider text-ember">
+                            FASE 02 • OPERASI PEMADAMAN &amp; PENYELAMATAN
+                        </span>
+                        <span class="text-xs text-ember-dark font-medium">Fokus: Lokalisasi api, evakuasi warga, &amp; mitigasi kabut asap</span>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="bg-white border border-line border-l-4 border-l-ember rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-fire-extinguisher"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Pemadaman Cepat</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Operasi pemadaman darat, <em class="text-ink">water bombing</em> helikopter, dan Teknologi Modifikasi Cuaca (TMC / Hujan Buatan).</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-ember rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-truck-medical"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Evakuasi</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Memindahkan kelompok rentan (balita, ibu hamil, lansia) dari ancaman api langsung dan zona asap berbahaya.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-ember rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-mask-face"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Perlindungan Asap</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Distribusi masker N95, penyesuaian kegiatan sekolah, dan penyediaan <em class="text-ink">safe room</em> berfiltrasi udara bersih.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-ember rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-ember-soft text-ember flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-hand-holding-medical"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Penanganan Medis</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Membuka posko darurat ISPA, suplai oksigen, obat-obatan pernapasan, serta distribusi logistik air bersih.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="glass-panel w-full sm:w-[45%] md:w-[30%] lg:w-[18%] p-6 rounded-2xl text-center border-t-2 border-t-flame hover:-translate-y-2 transition-transform duration-300 shadow-[0_0_15px_rgba(231,111,81,0.2)]">
-                    <div class="w-14 h-14 bg-flame/20 rounded-full mx-auto flex items-center justify-center text-xl text-flame mb-4 border border-flame/30"><i class="fa-solid fa-laptop-code"></i></div>
-                    <h4 class="font-bold text-white text-sm">Satria Arya M.</h4>
-                    <p class="text-xs font-mono text-flame mt-1">124250160</p>
-                </div>
-
-                <div class="glass-panel w-full sm:w-[45%] md:w-[30%] lg:w-[18%] p-6 rounded-2xl text-center border-t-2 border-t-emerald-500 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-14 h-14 bg-white/5 rounded-full mx-auto flex items-center justify-center text-xl text-emerald-400 mb-4 border border-white/10"><i class="fa-solid fa-user-astronaut"></i></div>
-                    <h4 class="font-bold text-white text-sm">Farel Zepika M.</h4>
-                    <p class="text-xs font-mono text-emerald-400 mt-1">124250163</p>
+                <!-- PHASE 03: PASCABENCANA -->
+                <div id="content-pasca" class="hidden panel-reveal">
+                    <div class="bg-sky-50 border border-sky-200 rounded-2xl px-6 py-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span class="font-mono text-xs font-bold uppercase tracking-wider text-sky-800">
+                            FASE 03 • REHABILITASI, RESTORASI &amp; PENEGAKAN HUKUM
+                        </span>
+                        <span class="text-xs text-sky-900 font-medium">Fokus: Pembasahan gambut &amp; verifikasi padam tuntas</span>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="bg-white border border-line border-l-4 border-l-sky-600 rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-mountain"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Rehabilitasi Lahan</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Menstabilkan struktur tanah bekas terbakar untuk mencegah erosi permukaan dan sedimentasi sungai saat hujan.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-sky-600 rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-seedling"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Reboisasi</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Penanaman kembali bibit pohon endemik adaptif untuk memulihkan fungsi tutupan kanopi dan keanekaragaman hayati.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-sky-600 rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-droplet"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Pemulihan Gambut</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Restorasi hidrologis (<em class="text-ink">rewetting</em>) melalui pembangunan sekat kanal (<em class="text-ink">canal blocking</em>) agar gambut kembali basah.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-line border-l-4 border-l-sky-600 rounded-2xl p-7 flex gap-4 items-start">
+                            <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-lg text-ink mb-1.5">Pemantauan &amp; Hukum</h4>
+                                <p class="text-ink-body text-sm leading-relaxed">Verifikasi sisa bara gambut tersembunyi (<em class="text-ink">mopping up</em>) dan proses audit serta penegakan hukum bagi pelaku pembakaran.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-forest-950 pt-16 pb-8 border-t border-white/10 text-center relative overflow-hidden">
-        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-emerald-500/5 blur-[120px] pointer-events-none rounded-t-full"></div>
-        <div class="container mx-auto px-4 relative z-10">
-            <div class="inline-flex items-center gap-3 mb-6">
-                <i class="fa-solid fa-fire text-flame text-2xl"></i>
-                <h2 class="text-2xl font-heading font-bold text-white tracking-widest">PYROWATCH<span class="text-flame">ID</span></h2>
+    <!-- ===================================================================== -->
+    <!-- 8. SECTION STUDI KASUS (#studi-kasus - Soft Slate #F8FAFC)            -->
+    <!-- ===================================================================== -->
+    <section id="studi-kasus" class="py-20 lg:py-24 bg-surface-slate border-b border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border border-line rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(15,23,42,0.04)] grid lg:grid-cols-12">
+                <!-- Left Bespoke Vector Illustration of White Rock, British Columbia Wildfire -->
+                <div class="lg:col-span-6 bg-charcoal-900 p-6 sm:p-8 flex flex-col justify-between">
+                    <div class="flex items-center justify-between font-mono text-[11px] text-slate-400 mb-4">
+                        <span class="text-amberbrand font-semibold">CASE ARCHIVE • 13 JULI 2021</span>
+                        <span>49.0253° N, 122.8029° W</span>
+                    </div>
+
+                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 500 310" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi studi kasus kebakaran hutan White Rock British Columbia Kanada 2021">
+                        <rect width="500" height="310" fill="#14191E"/>
+                        <!-- Heat Dome Atmospheric Arc -->
+                        <path d="M55 210C55 102 142 28 250 28C358 28 445 102 445 210" stroke="#EA580C" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="6 5"/>
+                        <rect x="174" y="18" width="152" height="22" rx="11" fill="#EA580C"/>
+                        <text x="250" y="32" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">ANOMALI HEAT DOME</text>
+
+                        <!-- British Columbia Mountain Peaks -->
+                        <polygon points="20,235 155,95 285,235" fill="#1E293B"/>
+                        <polygon points="195,235 345,82 485,235" fill="#273444"/>
+
+                        <!-- Massive Smoke Plume -->
+                        <circle cx="332" cy="112" r="34" fill="#94A3B8" fill-opacity="0.35"/>
+                        <circle cx="368" cy="86" r="42" fill="#CBD5E1" fill-opacity="0.28"/>
+                        <circle cx="412" cy="64" r="38" fill="#E2E8F0" fill-opacity="0.2"/>
+
+                        <!-- Crown Fire along Conifer Ridge -->
+                        <path d="M292 156C292 156 318 178 318 202C318 218 306 230 292 230C278 230 266 218 266 202C266 187 279 170 292 156Z" fill="#EA580C"/>
+                        <path d="M342 146C342 146 366 168 366 194C366 210 355 222 342 222C329 222 318 210 318 194C318 178 330 160 342 146Z" fill="#FBBF24"/>
+
+                        <!-- Conifer Trees Foreground -->
+                        <polygon points="75,180 50,235 100,235" fill="#15803D"/>
+                        <polygon points="122,168 94,235 150,235" fill="#166534"/>
+                        <polygon points="172,184 148,235 196,235" fill="#15803D"/>
+
+                        <!-- Coastal Bay Water -->
+                        <rect x="0" y="235" width="500" height="75" fill="#0F172A"/>
+                        <line x1="36" y1="258" x2="180" y2="258" stroke="#38BDF8" stroke-opacity="0.35" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="250" y1="274" x2="430" y2="274" stroke="#38BDF8" stroke-opacity="0.25" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+
+                    <div class="mt-4 flex items-center justify-between text-xs text-slate-300 font-mono">
+                        <span><i class="fa-brands fa-youtube text-ember mr-1.5"></i> Source: YouTube CTV News</span>
+                        <span>British Columbia, Kanada</span>
+                    </div>
+                </div>
+
+                <!-- Right Editorial Narrative & Structured Case Metadata -->
+                <div class="lg:col-span-6 p-7 sm:p-10 lg:p-12 flex flex-col justify-center">
+                    <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-ember block mb-2.5">
+                        05 / Studi Kasus Internasional
+                    </span>
+                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-ink tracking-tight mb-4">
+                        White Rock, British Columbia, Kanada (2021)
+                    </h3>
+                    <p class="text-ink-body text-sm sm:text-base leading-relaxed mb-7">
+                        Dokumentasi berita pada <strong class="text-ink">13 Juli 2021</strong> memperlihatkan kebakaran hutan dahsyat melanda wilayah British Columbia. Dipicu gelombang panas ekstrem (<em class="text-ink">heat dome</em>), api membakar vegetasi konifer kering hingga memicu <strong class="text-ember">Api Tajuk (Crown Fire)</strong>. Ratusan titik kebakaran terjadi serentak, membuktikan bahwa karhutla mampu merusak ekosistem luas dan menurunkan kualitas udara lintas batas negara secara global.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-4 pt-6 border-t border-line font-mono text-xs">
+                        <div>
+                            <span class="text-ink-muted block">TANGGAL KEJADIAN</span>
+                            <span class="text-ink font-bold mt-1 block">13 Juli 2021</span>
+                        </div>
+                        <div>
+                            <span class="text-ink-muted block">TIPE DOMINAN</span>
+                            <span class="text-ember font-bold mt-1 block">Api Tajuk (Crown Fire)</span>
+                        </div>
+                        <div>
+                            <span class="text-ink-muted block">FAKTOR PEMICU</span>
+                            <span class="text-ink font-bold mt-1 block">Gelombang Panas (Heat Dome)</span>
+                        </div>
+                        <div>
+                            <span class="text-ink-muted block">SUMBER DOKUMENTASI</span>
+                            <span class="text-ink font-bold mt-1 block">YouTube CTV News</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <h3 class="text-xl md:text-2xl font-bold text-gray-300 mb-4 font-heading tracking-wide">PREVENT, PROTECT, AND RESTORE.</h3>
-            <p class="text-sm text-gray-500 max-w-xl mx-auto mb-10">
-                Sistem Informasi Manajemen Bencana Kebakaran Hutan & Lahan.<br> 
-                Tugas Mata Kuliah Sistem Informasi Manajemen Bencana - Kelompok 6.
-            </p>
-            <div class="border-t border-white/10 pt-8 text-xs text-gray-600 font-mono">
-                &copy; 2026 PyroWatch ID Team. All rights reserved.
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 9. SECTION TIM KELOMPOK 6 (#tim - Crisp White #FFFFFF)                -->
+    <!-- ===================================================================== -->
+    <section id="tim" class="py-20 lg:py-24 bg-surface-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-forest block mb-2.5">
+                    06 / Pengembang Platform
+                </span>
+                <h2 class="font-display font-bold text-3xl sm:text-4xl text-ink tracking-tight">
+                    Tim Kelompok 6
+                </h2>
+                <p class="text-ink-body text-sm mt-2">
+                    Mata Kuliah Sistem Informasi Manajemen Bencana
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+                <!-- Member 1 -->
+                <div class="bg-surface-slate border border-line hover:border-charcoal-900 rounded-2xl p-6 text-center transition-all">
+                    <div class="w-11 h-11 rounded-full bg-white border border-line text-charcoal-900 font-display font-bold text-sm mx-auto flex items-center justify-center mb-4">
+                        YR
+                    </div>
+                    <h4 class="font-bold text-ink text-sm">Yunita Rachmawati</h4>
+                    <p class="font-mono text-xs text-ink-muted mt-1.5">124250151</p>
+                </div>
+
+                <!-- Member 2 -->
+                <div class="bg-surface-slate border border-line hover:border-charcoal-900 rounded-2xl p-6 text-center transition-all">
+                    <div class="w-11 h-11 rounded-full bg-white border border-line text-charcoal-900 font-display font-bold text-sm mx-auto flex items-center justify-center mb-4">
+                        SU
+                    </div>
+                    <h4 class="font-bold text-ink text-sm">Sayyira Ulhaq Rukmana</h4>
+                    <p class="font-mono text-xs text-ink-muted mt-1.5">124250156</p>
+                </div>
+
+                <!-- Member 3 -->
+                <div class="bg-surface-slate border border-line hover:border-charcoal-900 rounded-2xl p-6 text-center transition-all">
+                    <div class="w-11 h-11 rounded-full bg-white border border-line text-charcoal-900 font-display font-bold text-sm mx-auto flex items-center justify-center mb-4">
+                        AA
+                    </div>
+                    <h4 class="font-bold text-ink text-sm">Amalia Aryanti</h4>
+                    <p class="font-mono text-xs text-ink-muted mt-1.5">124250158</p>
+                </div>
+
+                <!-- Member 4 -->
+                <div class="bg-surface-slate border border-line hover:border-amberbrand rounded-2xl p-6 text-center transition-all">
+                    <div class="w-11 h-11 rounded-full bg-charcoal-900 text-amberbrand font-display font-bold text-sm mx-auto flex items-center justify-center mb-4">
+                        SA
+                    </div>
+                    <h4 class="font-bold text-ink text-sm">Satria Arya Mahendra</h4>
+                    <p class="font-mono text-xs text-ember font-semibold mt-1.5">124250160</p>
+                </div>
+
+                <!-- Member 5 -->
+                <div class="bg-surface-slate border border-line hover:border-charcoal-900 rounded-2xl p-6 text-center transition-all">
+                    <div class="w-11 h-11 rounded-full bg-white border border-line text-charcoal-900 font-display font-bold text-sm mx-auto flex items-center justify-center mb-4">
+                        FZ
+                    </div>
+                    <h4 class="font-bold text-ink text-sm">Farel Zepika Maulana</h4>
+                    <p class="font-mono text-xs text-ink-muted mt-1.5">124250163</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 10. CRISP DARK SLATE FOOTER                                           -->
+    <!-- ===================================================================== -->
+    <footer class="bg-charcoal-950 text-white pt-16 pb-10 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-white/10">
+                <div class="text-center md:text-left">
+                    <div class="inline-flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-amberbrand text-charcoal-900 flex items-center justify-center">
+                            <i class="fa-solid fa-fire-flame-curved text-sm"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl tracking-tight text-white">
+                            PYROWATCH<span class="text-amberbrand">ID</span>
+                        </span>
+                    </div>
+                    <p class="font-display font-bold text-lg sm:text-xl tracking-wider text-slate-200 uppercase">
+                        PREVENT, PROTECT, AND RESTORE.
+                    </p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1.5">
+                        Tugas Mata Kuliah Sistem Informasi Manajemen Bencana — Kelompok 6.
+                    </p>
+                </div>
+
+                <a href="pyrowatch-v3-siap.html" class="inline-flex items-center gap-2.5 bg-amberbrand hover:bg-amberbrand-hover text-charcoal-900 font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-full transition-all">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    Akses Dashboard Peta Karhutla
+                </a>
+            </div>
+
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-500">
+                <span>&copy; 2026 PyroWatch ID Team. All rights reserved.</span>
+                <span>Data Integrasi: NASA FIRMS VIIRS • GIBS • KHG Gambut</span>
             </div>
         </div>
     </footer>
 
-    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <!-- ===================================================================== -->
+    <!-- INTERACTIVE APPLICATION LOGIC                                         -->
+    <!-- ===================================================================== -->
     <script>
-        // --- 1. Mobile Menu Logic ---
+        /* -------------------------------------------------------------------
+         * 1. Mobile Navigation Drawer Toggle
+         * ------------------------------------------------------------------- */
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
+
         mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-        // Close menu on link click
-        document.querySelectorAll('#mobileMenu a').forEach(link => {
-            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            const isHidden = mobileMenu.classList.toggle('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', String(!isHidden));
         });
 
-        // --- 3. Filter Dampak (Duality) ---
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        /* -------------------------------------------------------------------
+         * 2. Interactive 3-Layer Forest Cross-Section Selector (#edukasi)
+         * ------------------------------------------------------------------- */
+        const strataData = {
+            tajuk: {
+                badge: 'Tingkat Atas • Crown Fire',
+                badgeClass: 'inline-block font-mono text-[11px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-400/30 px-3 py-1 rounded-full mb-3',
+                title: 'Api Tajuk (Crown Fire)',
+                desc: 'Membakar pucuk pohon tinggi dan melompat antar-pohon dengan bantuan angin. Paling spektakuler & sulit dipadamkan dari darat.',
+                speed: 'Sangat Cepat (Didorong Angin)',
+                action: 'Water Bombing & TMC',
+                cardBorder: 'border-2 border-red-500'
+            },
+            permukaan: {
+                badge: 'Permukaan • Surface Fire',
+                badgeClass: 'inline-block font-mono text-[11px] font-bold uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-400/30 px-3 py-1 rounded-full mb-3',
+                title: 'Api Permukaan (Surface Fire)',
+                desc: 'Membakar serasah dedaunan kering dan semak belukar di atas tanah. Umumnya pemicu awal, dipadamkan dengan sekat bakar.',
+                speed: 'Cepat di Serasah Kering',
+                action: 'Sekat Bakar & Regu Darat',
+                cardBorder: 'border-2 border-ember'
+            },
+            bawah: {
+                badge: 'Bawah Tanah • Ground Fire',
+                badgeClass: 'inline-block font-mono text-[11px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full mb-3',
+                title: 'Api Bawah (Ground Fire / Gambut)',
+                desc: 'Merambat perlahan di bawah tanah (lahan gambut tebal) tanpa nyala lidah api. Asap pekat, sangat sulit dideteksi & dipadamkan.',
+                speed: 'Lambat Namun Persisten',
+                action: 'Injeksi Air & Sekat Kanal',
+                cardBorder: 'border-2 border-amber-500'
+            }
+        };
+
+        function selectStrata(key) {
+            const info = strataData[key];
+            if (!info) return;
+
+            // Update inspector readout
+            const badgeEl = document.getElementById('strataBadge');
+            badgeEl.className = info.badgeClass;
+            badgeEl.textContent = info.badge;
+            document.getElementById('strataTitle').textContent = info.title;
+            document.getElementById('strataDesc').textContent = info.desc;
+            document.getElementById('strataSpeed').textContent = info.speed;
+            document.getElementById('strataAction').textContent = info.action;
+
+            // Highlight active SVG layer & cards
+            ['tajuk', 'permukaan', 'bawah'].forEach(item => {
+                const band = document.getElementById(`svg-band-${item}`);
+                const card = document.getElementById(`strata-card-${item}`);
+                if (item === key) {
+                    band.classList.remove('opacity-55');
+                    card.className = `cursor-pointer bg-white ${strataData[item].cardBorder} rounded-2xl p-7 transition-all shadow-md`;
+                } else {
+                    band.classList.add('opacity-55');
+                    card.className = 'cursor-pointer bg-white border border-line hover:border-slate-400 rounded-2xl p-7 transition-all shadow-sm';
+                }
+            });
+        }
+
+        /* -------------------------------------------------------------------
+         * 3. Single-Slide Full-Stage Auto-Carousel (6 Penyebab Utama)
+         *    - 1 slide visible at a time, 4.5s interval
+         *    - Pause on hover & touch, swipe gestures, prev/next, elongated active pill
+         * ------------------------------------------------------------------- */
+        (function initSingleSlideCarousel() {
+            const carousel = document.getElementById('causeCarousel');
+            const track = document.getElementById('causeTrack');
+            const slides = Array.from(track.querySelectorAll('.cause-slide'));
+            const dotsContainer = document.getElementById('carouselDots');
+            const prevBtn = document.getElementById('prevSlideBtn');
+            const nextBtn = document.getElementById('nextSlideBtn');
+            const progressBar = document.getElementById('carouselProgress');
+
+            const totalSlides = slides.length; // 6 slides
+            let activeIndex = 0;
+            let timerId = null;
+            let isPaused = false;
+            const INTERVAL_MS = 4500;
+
+            // Render elongated active pill + circular dots ('— • • • • •')
+            function renderDots() {
+                dotsContainer.innerHTML = '';
+                for (let i = 0; i < totalSlides; i++) {
+                    const dot = document.createElement('button');
+                    dot.type = 'button';
+                    dot.setAttribute('aria-label', `Tampilkan penyebab 0${i + 1}`);
+                    dot.setAttribute('aria-selected', String(i === activeIndex));
+                    dot.className = i === activeIndex
+                        ? 'h-2.5 w-9 rounded-full bg-amberbrand transition-all duration-300'
+                        : 'h-2.5 w-2.5 rounded-full bg-white/25 hover:bg-white/50 transition-all duration-300';
+                    dot.addEventListener('click', () => {
+                        goToSlide(i);
+                        resetTimer();
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+            }
+
+            function restartProgress() {
+                progressBar.classList.remove('carousel-progress-active');
+                void progressBar.offsetWidth; // Force reflow
+                progressBar.classList.add('carousel-progress-active');
+                progressBar.classList.toggle('carousel-progress-paused', isPaused);
+            }
+
+            function goToSlide(index) {
+                activeIndex = ((index % totalSlides) + totalSlides) % totalSlides;
+                track.style.transform = `translate3d(-${activeIndex * 100}%, 0, 0)`;
+                renderDots();
+                restartProgress();
+            }
+
+            function startTimer() {
+                clearInterval(timerId);
+                timerId = setInterval(() => {
+                    if (!isPaused) {
+                        goToSlide(activeIndex + 1);
+                    }
+                }, INTERVAL_MS);
+                restartProgress();
+            }
+
+            function resetTimer() {
+                clearInterval(timerId);
+                startTimer();
+            }
+
+            prevBtn.addEventListener('click', () => {
+                goToSlide(activeIndex - 1);
+                resetTimer();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                goToSlide(activeIndex + 1);
+                resetTimer();
+            });
+
+            // Pause on mouse hover
+            carousel.addEventListener('mouseenter', () => {
+                isPaused = true;
+                progressBar.classList.add('carousel-progress-paused');
+            });
+
+            carousel.addEventListener('mouseleave', () => {
+                isPaused = false;
+                progressBar.classList.remove('carousel-progress-paused');
+            });
+
+            // Touch swipe support for mobile & tablet
+            let touchStartX = 0;
+            carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                isPaused = true;
+                progressBar.classList.add('carousel-progress-paused');
+            }, { passive: true });
+
+            carousel.addEventListener('touchend', (e) => {
+                const deltaX = touchStartX - e.changedTouches[0].screenX;
+                if (Math.abs(deltaX) > 40) {
+                    goToSlide(deltaX > 0 ? activeIndex + 1 : activeIndex - 1);
+                }
+                isPaused = false;
+                progressBar.classList.remove('carousel-progress-paused');
+                resetTimer();
+            }, { passive: true });
+
+            // Keyboard left/right support when carousel is focused
+            carousel.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    goToSlide(activeIndex - 1);
+                    resetTimer();
+                } else if (e.key === 'ArrowRight') {
+                    goToSlide(activeIndex + 1);
+                    resetTimer();
+                }
+            });
+
+            renderDots();
+            startTimer();
+        })();
+
+        /* -------------------------------------------------------------------
+         * 4. Dualitas Dampak Segmented Filter (#dampak)
+         * ------------------------------------------------------------------- */
         function filterDampak(kategori) {
             const cards = document.querySelectorAll('.dampak-card');
             const btnNegatif = document.getElementById('btn-negatif');
             const btnPositif = document.getElementById('btn-positif');
 
             if (kategori === 'negatif') {
-                btnNegatif.className = "px-6 py-2.5 text-xs font-bold rounded-lg transition bg-red-600/80 text-white shadow-md";
-                btnPositif.className = "px-6 py-2.5 text-xs font-bold rounded-lg transition text-gray-400 hover:text-white";
-                
+                btnNegatif.className = 'px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-ember text-white shadow-sm';
+                btnPositif.className = 'px-5 py-2.5 rounded-full text-xs font-bold transition-all text-ink-body hover:text-ink';
                 cards.forEach(card => {
-                    if (card.classList.contains('negatif')) {
-                        card.classList.remove('hidden');
-                        card.classList.add('animate-[fadeIn_0.5s_ease-out]');
-                    } else {
-                        card.classList.add('hidden');
-                    }
+                    const show = card.classList.contains('negatif');
+                    card.classList.toggle('hidden', !show);
+                    if (show) card.classList.add('panel-reveal');
                 });
-            } else if (kategori === 'positif') {
-                btnPositif.className = "px-6 py-2.5 text-xs font-bold rounded-lg transition bg-emerald-600/80 text-white shadow-md";
-                btnNegatif.className = "px-6 py-2.5 text-xs font-bold rounded-lg transition text-gray-400 hover:text-white";
-                
+            } else {
+                btnPositif.className = 'px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-forest text-white shadow-sm';
+                btnNegatif.className = 'px-5 py-2.5 rounded-full text-xs font-bold transition-all text-ink-body hover:text-ink';
                 cards.forEach(card => {
-                    if (card.classList.contains('positif')) {
-                        card.classList.remove('hidden');
-                        card.classList.add('animate-[fadeIn_0.5s_ease-out]');
-                    } else {
-                        card.classList.add('hidden');
-                    }
+                    const show = card.classList.contains('positif');
+                    card.classList.toggle('hidden', !show);
+                    if (show) card.classList.add('panel-reveal');
                 });
             }
         }
 
-        // --- 4. Tab Mitigasi Switching ---
+        /* -------------------------------------------------------------------
+         * 5. Protokol Mitigasi 3-Phase Tab Switcher (#mitigasi)
+         * ------------------------------------------------------------------- */
         function switchTab(fase) {
-            const tabs = ['pra', 'tanggap', 'pasca'];
-            tabs.forEach(t => {
+            ['pra', 'tanggap', 'pasca'].forEach(t => {
                 const btn = document.getElementById(`tab-btn-${t}`);
                 const content = document.getElementById(`content-${t}`);
-                
                 if (t === fase) {
-                    btn.className = "px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white transition-all shadow-md";
+                    btn.className = 'px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-charcoal-900 text-white shadow-sm';
                     content.classList.remove('hidden');
                 } else {
-                    btn.className = "px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-all bg-transparent";
+                    btn.className = 'px-5 py-2.5 rounded-full text-xs font-bold transition-all text-ink-body hover:text-ink';
                     content.classList.add('hidden');
                 }
             });

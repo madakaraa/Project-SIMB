@@ -6,65 +6,362 @@
 <title>PyroWatch ID – Pemantauan Karhutla</title>
 <!-- MapLibre CSS -->
 <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
-<!-- Font Awesome untuk Ikon -->
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Google Fonts (Sama dengan index.html) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
-*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden;}
-body{font:400 14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#f0e9e0;background:#181310}
+:root {
+    --slate-950: #14191d;
+    --slate-900: #181f25;
+    --slate-800: #1e252b;
+    --slate-700: #262f37;
+    --amber: #f59e0b;
+    --amber-dark: #d97706;
+    --emerald: #34d399;
+    --flame: #ea580c;
+    --flame-dark: #dc2626;
+    --flame-light: #fbbf24;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+}
 
-/* Header Kustom */
-.navbar { position:fixed; top:0; left:0; right:0; height:64px; background:#153124; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 24px; border-bottom:1px solid rgba(45,106,79,0.5); font-family:system-ui, sans-serif; }
-.navbar a.brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
-.brand-icon { width:40px; height:40px; background:#e76f51; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:20px; box-shadow: 0 0 15px rgba(231,111,81,0.5); }
-.nav-links { display:flex; gap:24px; align-items:center; }
-.nav-links a { color:#aab8b1; font-weight:600; font-size:13px; text-decoration:none; transition: color 0.3s; }
-.nav-links a:hover, .nav-links a.active { color:white; }
-.btn-lapor { background: linear-gradient(135deg, #e3342f, #cf3d16); color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow: 0 4px 15px rgba(227,52,47,0.4); transition: transform 0.2s; }
-.btn-lapor:hover { transform: scale(1.05); }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; }
+body {
+    font: 400 13.5px/1.5 "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    background: var(--slate-950);
+    -webkit-font-smoothing: antialiased;
+}
 
-/* Penyesuaian Map & Panel karena ada Header 64px */
-#map{position:absolute; top:64px; bottom:0; left:0; right:0;}
-#wc{position:absolute; top:64px; bottom:0; left:0; right:0; z-index:3; pointer-events:none; width:100%; height:calc(100% - 64px);}
-.panel{position:absolute;z-index:5;top:76px;left:12px;width:330px;max-width:calc(100% - 24px);max-height:calc(100% - 84px - 64px);overflow:auto;background:rgba(24,19,16,.92);border:1px solid #3b3028;border-radius:12px;padding:12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
-.cards{position:absolute;z-index:4;top:76px;left:366px;right:64px;display:flex;gap:8px;pointer-events:none}
-@media(max-width:850px){ .nav-links { display:none; } .cards{top:auto;bottom:100px;left:12px;right:12px;overflow:auto} .panel{max-height: 45%;} }
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(20, 25, 29, 0.6); }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
 
-/* Styles Asli Bawaan Panel */
-h1{font-size:1.2rem;margin:0}h1 b{color:#ff6a3d}.sub{color:#aa9d91;font-size:.82rem}
-summary{font-weight:700;cursor:pointer;padding:8px 0;border-top:1px solid #3b3028;margin-top:8px}
-.panel>.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.btns{display:flex;flex-wrap:wrap;gap:6px}
-button,.b{font:500 .82rem system-ui,sans-serif;border:1.5px solid #5a4a3e;background:transparent;color:#f0e9e0;border-radius:999px;padding:5px 11px;cursor:pointer;text-decoration:none; transition:0.2s;}
-button:hover{border-color:#f0e9e0}button[aria-pressed=true]{background:#f0e9e0;color:#181310}
-label{display:flex;gap:8px;align-items:center;margin:4px 0;cursor:pointer}
-input,select,textarea{width:100%;padding:7px;border-radius:8px;background:#231c17;color:#f0e9e0;border:1.5px solid #5a4a3e;font:inherit}
-input[type=checkbox],input[type=radio]{width:auto}
-:focus-visible{outline:3px solid #ff6a3d;outline-offset:2px}
-.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin:0 4px 0 8px;vertical-align:-1px;border:1.5px solid #fff}.dot:first-child{margin-left:0}
-.card{background:#231c17;border:1px solid #3b3028;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:.85rem;cursor:pointer}
-.card b{display:block}.a{color:#ff6a3d}.m{color:#f0a020}.v{color:#58c07f}
-#note{margin-top:8px;padding:8px 10px;border-radius:8px;background:#2b2118;border-left:4px solid #f0a020;font-size:.82rem}
+/* Header Navbar (Selaras dengan index.html) */
+.navbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 64px;
+    background: rgba(30, 37, 43, 0.92);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    z-index: 100; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+}
+.navbar a.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--amber), var(--flame));
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: var(--slate-950); font-size: 17px;
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: transform 0.25s ease;
+}
+.navbar a.brand:hover .brand-icon { transform: scale(1.06); }
+.brand-title {
+    font-family: "Space Grotesk", sans-serif; color: #fff;
+    font-weight: 700; font-size: 19px; letter-spacing: 0.05em; line-height: 1;
+}
+.brand-sub {
+    color: var(--text-muted); font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-top: 3px;
+}
 
-/* Form Lapor Bencana */
-#rp{position:absolute;z-index:101;left:50%;top:50%;transform:translate(-50%, -50%);width:min(380px,calc(100% - 24px));background:#231c17;border:1px solid #5a4a3e;border-radius:12px;padding:18px;display:none; box-shadow:0 20px 50px rgba(0,0,0,0.8);}
-#rp label{display:block;margin-top:8px;font-weight:700;font-size:.85rem}
-.pp b{display:block;font-size:.98rem;margin-bottom:4px}.pp small{display:block;margin-top:6px;color:#aa9d91}.cs{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
-.aq,.rpm{width:30px;height:30px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font:700 .72rem system-ui;color:#1b1410;cursor:pointer}
-.rpm{background:#cf3d16;color:#fff;border-radius:6px}
-.maplibregl-popup-content{background:#231c17;color:#f0e9e0;border-radius:10px;padding:12px 14px;font-size:.86rem;max-width:260px; box-shadow:0 5px 15px rgba(0,0,0,0.5);}
-.maplibregl-popup-tip{border-top-color:#231c17!important;border-bottom-color:#231c17!important}.maplibregl-popup-close-button{color:#f0e9e0; font-size:16px;}
-.cards div{background:rgba(24,19,16,.9);border:1px solid #3b3028;border-radius:10px;padding:8px 12px;min-width:120px;pointer-events:auto}
-.cards small{display:block;color:#aa9d91;font-size:.74rem}.cards b{font-size:1.2rem}
-.lgb{position:absolute;z-index:4;left:50%;bottom:6px;transform:translateX(-50%);display:flex;font-size:.72rem;font-weight:600;color:#1b1410;border-radius:6px;overflow:auto;max-width:calc(100% - 24px)}
-.lgb span{padding:3px 8px;white-space:nowrap}
-.noaq .aq{display:none}
+.nav-links { display: flex; gap: 22px; align-items: center; }
+.nav-links a {
+    color: #cbd5e1; font-weight: 600; font-size: 12px; letter-spacing: 0.07em;
+    text-decoration: none; transition: color 0.25s; position: relative; padding: 4px 0;
+}
+.nav-links a::after {
+    content: ""; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+    background: var(--amber); transition: width 0.25s ease;
+}
+.nav-links a:hover { color: #fff; }
+.nav-links a.active { color: var(--amber); }
+.nav-links a.active::after, .nav-links a:hover::after { width: 100%; }
 
-/* Search Bar Styles */
-.search-box { display:flex; gap:6px; margin-bottom:12px; align-items:center; }
-.search-box input { flex:1; background:#1a1411; border: 1px solid #5a4a3e; color:white; }
-.search-box input:focus { border-color: #ff6a3d; }
-.search-box button { background:#ff6a3d; border:none; border-radius:8px; padding:0 14px; height:100%; display:flex; align-items:center; justify-content:center; color:#fff; }
-.search-box button:hover { background:#cf3d16; }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.btn-back {
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 8px 15px; border-radius: 999px;
+    font-weight: 600; font-size: 12px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.2s ease;
+}
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+}
+
+.btn-lapor {
+    background: linear-gradient(135deg, var(--flame-dark), var(--flame));
+    color: white; border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 9px 18px; border-radius: 999px;
+    font-weight: 700; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.35);
+    transition: all 0.25s ease;
+}
+.btn-lapor:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 28px rgba(234, 88, 12, 0.55);
+}
+
+/* Map & Wind Canvas */
+#map { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; }
+#wc { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; z-index: 3; pointer-events: none; width: 100%; height: calc(100% - 64px); }
+
+/* Floating Glass Panel Kiri */
+.panel {
+    position: absolute; z-index: 5; top: 78px; left: 14px;
+    width: 342px; max-width: calc(100% - 28px); max-height: calc(100% - 94px);
+    overflow: auto;
+    background: linear-gradient(155deg, rgba(30, 37, 43, 0.92) 0%, rgba(20, 25, 29, 0.96) 100%);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px; padding: 16px 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.panel > .top {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding-bottom: 8px;
+}
+h1 {
+    font-family: "Space Grotesk", sans-serif; font-size: 1.2rem;
+    letter-spacing: 0.02em; margin: 0; color: #fff;
+}
+h1 b { color: var(--amber); font-weight: 700; }
+.sub { color: var(--text-muted); font-size: 0.76rem; margin-top: 2px; }
+
+summary {
+    font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.07em;
+    color: #e2e8f0; cursor: pointer; padding: 11px 0 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 10px;
+    list-style: none; display: flex; align-items: center; justify-content: space-between;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after {
+    content: "\f078"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+    font-size: 10px; color: var(--text-muted); transition: transform 0.2s ease;
+}
+details[open] > summary::after { transform: rotate(180deg); color: var(--amber); }
+
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+button, .b {
+    font: 600 0.76rem "Plus Jakarta Sans", system-ui, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-main); border-radius: 999px;
+    padding: 6px 12px; cursor: pointer; text-decoration: none;
+    transition: all 0.2s ease;
+}
+button:hover {
+    border-color: rgba(245, 158, 11, 0.65);
+    background: rgba(245, 158, 11, 0.14);
+    color: #fff;
+}
+button[aria-pressed=true] { background: var(--amber); border-color: var(--amber); color: var(--slate-950); }
+
+label {
+    display: flex; gap: 9px; align-items: center; margin: 6px 0;
+    cursor: pointer; font-size: 0.82rem; color: #e2e8f0;
+    transition: color 0.2s;
+}
+label:hover { color: #fff; }
+
+input, select, textarea {
+    width: 100%; padding: 8px 11px; border-radius: 10px;
+    background: rgba(20, 25, 29, 0.85); color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font: inherit; font-size: 0.82rem; transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+input[type=checkbox], input[type=radio] {
+    width: 15px; height: 15px; accent-color: var(--amber); cursor: pointer; flex-shrink: 0;
+}
+input[type=range] {
+    accent-color: var(--amber); padding: 0; background: transparent; border: none; box-shadow: none;
+}
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.dot {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    margin: 0 5px 0 8px; vertical-align: -1px;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+.dot:first-child { margin-left: 0; }
+
+/* Card Data di Panel */
+.card {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px; padding: 10px 12px; margin: 7px 0;
+    font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease;
+}
+.card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(245, 158, 11, 0.45);
+    transform: translateY(-1px);
+}
+.card b { display: block; color: #fff; margin-bottom: 2px; }
+.a { color: #f97316; } .m { color: var(--amber); } .v { color: var(--emerald); }
+
+#stat {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px; padding: 10px 12px; font-size: 0.81rem; line-height: 1.65;
+}
+#note {
+    margin-top: 10px; padding: 9px 12px; border-radius: 10px;
+    background: rgba(245, 158, 11, 0.14); border-left: 3px solid var(--amber);
+    font-size: 0.8rem; color: #fde68a;
+}
+
+/* Search Bar */
+.search-box { display: flex; gap: 7px; margin: 4px 0 12px; align-items: stretch; }
+.search-box input { flex: 1; }
+.search-box button {
+    background: var(--amber);
+    border: none; border-radius: 10px; padding: 0 14px;
+    display: flex; align-items: center; justify-content: center; color: var(--slate-950);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+.search-box button:hover { background: var(--amber-dark); color: var(--slate-950); }
+
+/* Layer Icon Colors */
+.ico-sat { color: #f97316; width: 15px; text-align: center; }
+.ico-khg { color: #d49664; width: 15px; text-align: center; }
+.ico-aqi { color: #94a3b8; width: 15px; text-align: center; }
+
+/* Top Metric Cards */
+.cards {
+    position: absolute; z-index: 4; top: 78px; left: 374px; right: 64px;
+    display: flex; flex-wrap: wrap; gap: 10px; pointer-events: none;
+}
+.cards div {
+    background: linear-gradient(145deg, rgba(30, 37, 43, 0.92) 0%, rgba(20, 25, 29, 0.95) 100%);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-top: 2px solid var(--amber);
+    border-radius: 14px; padding: 10px 15px; min-width: 148px;
+    pointer-events: auto;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.cards div:hover { transform: translateY(-2px); border-top-color: var(--flame); }
+.cards small {
+    display: block; color: var(--text-muted); font-size: 0.68rem;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px;
+}
+.cards b {
+    font-family: "Space Grotesk", sans-serif; font-size: 1.2rem;
+    letter-spacing: 0.01em; color: #fff; font-weight: 700;
+}
+
+/* AQI Legend Bar */
+.lgb {
+    position: absolute; z-index: 4; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; font-size: 0.7rem; font-weight: 700; color: var(--slate-950);
+    border-radius: 999px; overflow: hidden; max-width: calc(100% - 24px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+.lgb span { padding: 5px 11px; white-space: nowrap; }
+
+/* Form Lapor Bencana Modal */
+#rp {
+    position: absolute; z-index: 101; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(410px, calc(100% - 24px));
+    background: linear-gradient(155deg, rgba(30, 37, 43, 0.97) 0%, rgba(20, 25, 29, 0.99) 100%);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px; padding: 22px; display: none;
+    box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.12);
+}
+#rp label { display: block; margin-top: 12px; margin-bottom: 5px; font-weight: 700; font-size: 0.78rem; color: #e2e8f0; letter-spacing: 0.03em; }
+
+/* Popups & Markers */
+.pp b { display: block; font-size: 0.95rem; margin-bottom: 5px; color: #fff; }
+.pp small { display: block; margin-top: 6px; color: var(--text-muted); }
+.cs { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.aq, .rpm {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid #fff; display: grid; place-items: center;
+    font: 700 0.72rem "Plus Jakarta Sans", system-ui; color: var(--slate-950); cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.rpm {
+    background: linear-gradient(135deg, var(--flame-dark), var(--flame));
+    color: #fff; border-radius: 8px;
+}
+.noaq .aq { display: none; }
+
+/* MapLibre Custom Slate Charcoal Theme */
+.maplibregl-popup-content {
+    background: rgba(30, 37, 43, 0.95) !important;
+    backdrop-filter: blur(14px);
+    color: var(--text-main) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px !important; padding: 14px 16px !important;
+    font-size: 0.82rem; max-width: 280px;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6) !important;
+}
+.maplibregl-popup-tip {
+    border-top-color: rgba(30, 37, 43, 0.95) !important;
+    border-bottom-color: rgba(30, 37, 43, 0.95) !important;
+}
+.maplibregl-popup-close-button { color: #cbd5e1 !important; font-size: 16px; padding: 4px 8px; }
+.maplibregl-popup-close-button:hover { color: #fff !important; background: transparent !important; }
+
+.maplibregl-ctrl-group {
+    background: rgba(30, 37, 43, 0.9) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+}
+.maplibregl-ctrl-group button {
+    border: none !important; border-radius: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: transparent !important;
+}
+.maplibregl-ctrl-group button:last-child { border-bottom: none !important; }
+.maplibregl-ctrl-group button:hover { background: rgba(255, 255, 255, 0.08) !important; }
+.maplibregl-ctrl-icon { filter: invert(0.92); }
+.maplibregl-ctrl-scale {
+    background: rgba(20, 25, 29, 0.82) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 4px;
+}
+
+@media(max-width:1024px) {
+    .nav-links { display: none; }
+}
+@media(max-width:850px) {
+    .navbar { padding: 0 14px; }
+    .btn-back span { display: none; }
+    .btn-lapor { padding: 8px 13px; font-size: 10.5px; }
+    .cards { top: auto; bottom: 54px; left: 12px; right: 12px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    .cards div { min-width: 140px; flex-shrink: 0; }
+    .panel { max-height: 44%; top: 74px; left: 12px; }
+    .lgb { bottom: 8px; overflow-x: auto; border-radius: 10px; }
+}
 </style>
 </head>
 <body>
@@ -74,19 +371,24 @@ input[type=checkbox],input[type=radio]{width:auto}
     <a href="index.html" class="brand">
         <div class="brand-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
         <div>
-            <div style="color:white; font-weight:800; font-size:18px; letter-spacing:1px;">PYROWATCH<span style="color:#e76f51;">ID</span></div>
-            <div style="color:#58c07f; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">Sistem Informasi Bencana</div>
+            <div class="brand-title">PYROWATCH<span style="color:#f59e0b;">ID</span></div>
+            <div class="brand-sub">Sistem Informasi Bencana</div>
         </div>
     </a>
     <div class="nav-links">
+        <a href="index.html">MENU AWAL</a>
         <a href="#" class="active">DASHBOARD PETA</a>
-        <a href="index.html#definisi">EDUKASI</a>
-        <a href="index.html#penyebab">PENYEBAB & DAMPAK</a>
+        <a href="index.html#edukasi">EDUKASI</a>
+        <a href="index.html#penyebab">PENYEBAB &amp; DAMPAK</a>
         <a href="index.html#mitigasi">MITIGASI</a>
+        <a href="index.html#tim">TIM KAMI</a>
     </div>
-    <button class="btn-lapor" onclick="document.getElementById('rp').style.display='block'; document.getElementById('rm').textContent='Klik di peta untuk menandai lokasi titik awal api.';">
-        <i class="fa-solid fa-bullhorn"></i> LAPOR BENCANA
-    </button>
+    <div class="nav-actions">
+        <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span>Menu Awal</span></a>
+        <button class="btn-lapor" onclick="document.getElementById('rp').style.display='block'; document.getElementById('rm').textContent='Klik di peta untuk menandai lokasi titik awal api.';">
+            <i class="fa-solid fa-bullhorn"></i> LAPOR BENCANA
+        </button>
+    </div>
 </nav>
 
 <!-- PETA & LAYER -->
@@ -96,25 +398,25 @@ input[type=checkbox],input[type=radio]{width:auto}
 <!-- PANEL KONTROL KIRI -->
 <div class="panel" id="pn">
     <div class="top">
-        <div><h1>Filter <b>Pemantauan</b></h1><div class="sub">Kendali Layer Spasial & Thermal</div></div>
+        <div><h1>Filter <b>Pemantauan</b></h1><div class="sub">Kendali Layer Spasial &amp; Thermal</div></div>
         <button id="hd" aria-expanded="true"><i class="fa-solid fa-chevron-up"></i> Ciutkan</button>
     </div>
     <div id="bd">
-        <!-- FITUR PENCARIAN & REGION (BARU DITAMBAHKAN) -->
-        <details open><summary>Pencarian & Wilayah</summary>
+        <!-- FITUR PENCARIAN & REGION -->
+        <details open><summary>Pencarian &amp; Wilayah</summary>
             <!-- Search Bar API Nominatim -->
             <div class="search-box">
                 <input type="text" id="loc-search" placeholder="Cari kabupaten, kota..." autocomplete="off">
-                <button id="loc-btn" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button id="loc-btn" type="button" aria-label="Cari lokasi"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
             <!-- Region Default -->
             <div class="btns" id="rg"></div>
         </details>
 
         <details open><summary>Layer Aktif</summary>
-            <label><input type="checkbox" id="cF" checked> <i class="fa-solid fa-satellite-dish text-[#ff6a3d] mr-1"></i> Titik panas VIIRS (NASA)</label>
-            <label><input type="checkbox" id="cK" checked> <i class="fa-solid fa-layer-group text-[#a0673c] mr-1"></i> Batas KHG Gambut</label>
-            <label><input type="checkbox" id="cQ" checked> <i class="fa-solid fa-wind text-gray-400 mr-1"></i> Stasiun Kualitas Udara (AQI)</label>
+            <label><input type="checkbox" id="cF" checked> <i class="fa-solid fa-satellite-dish ico-sat"></i> Titik panas VIIRS (NASA)</label>
+            <label><input type="checkbox" id="cK" checked> <i class="fa-solid fa-layer-group ico-khg"></i> Batas KHG Gambut</label>
+            <label><input type="checkbox" id="cQ" checked> <i class="fa-solid fa-wind ico-aqi"></i> Stasiun Kualitas Udara (AQI)</label>
             <label><input type="checkbox" id="cG" checked> Gradasi Polusi di Peta</label>
             <label><input type="checkbox" id="cW" checked> Animasi Arah Angin</label>
             <label><input type="checkbox" id="cR" checked> Laporan Warga</label>
@@ -126,17 +428,17 @@ input[type=checkbox],input[type=radio]{width:auto}
             <label><input type="radio" name="cm" value="d" checked> Deteksi 2 Lapis (Permukaan / Gambut)</label>
             <label><input type="radio" name="cm" value="c"> Prediksi Penyebab (Alam / Manusia)</label>
             <label><input type="radio" name="cm" value="k"> Tingkat Keyakinan Api (Confidence)</label>
-            <div id="lg" style="margin:8px 0; font-size:12px;"></div>
+            <div id="lg" style="margin:10px 0; font-size:12px;"></div>
             <select id="dy" aria-label="Rentang hari" style="margin-top:4px;">
                 <option value="1">1 hari terakhir</option>
                 <option value="2" selected>2 hari terakhir</option>
                 <option value="3">3 hari terakhir</option>
                 <option value="5">5 hari terakhir</option>
             </select>
-            <label style="margin-top:8px">Relief 3D Pegunungan <input type="range" id="ex" min="1" max="4" step=".25" value="1.5"></label>
+            <label style="margin-top:10px; justify-content:space-between;"><span>Relief 3D Pegunungan</span> <input type="range" id="ex" min="1" max="4" step=".25" value="1.5" style="width:120px;"></label>
         </details>
         
-        <details open><summary>Data Ekstraksi & Statistik</summary><div id="stat">Memuat data FIRMS...</div></details>
+        <details open><summary>Data Ekstraksi &amp; Statistik</summary><div id="stat">Memuat data FIRMS...</div></details>
         <details open><summary>Verifikasi Padam Area Gambut (KHG)</summary><div id="kv"></div></details>
         <details open><summary>Kualitas Udara Ekstrem (AQI)</summary><div id="aql"></div></details>
         <div id="note" hidden></div>
@@ -146,10 +448,10 @@ input[type=checkbox],input[type=radio]{width:auto}
 <!-- POPUP FORM LAPOR BENCANA -->
 <div id="rp" role="dialog" aria-label="Lapor kebakaran">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <b style="font-size:1.1rem; color:#ff6a3d;"><i class="fa-solid fa-triangle-exclamation"></i> Lapor Titik Awal Karhutla</b>
-        <button id="rc" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <b style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; letter-spacing:0.02em; color:#f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i> LAPOR TITIK AWAL KARHUTLA</b>
+        <button id="rc" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:white; width:30px; height:30px; padding:0; display:grid; place-items:center; border-radius:50%; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <p style="margin:8px 0;color:#f0a020;font-size:.85rem; padding-bottom:8px; border-bottom:1px solid #3b3028;">Nyawa/aset terancam? Segera telepon <a href="tel:112" style="color:white; font-weight:bold; background:#cf3d16; padding:2px 6px; border-radius:4px; text-decoration:none;">112</a>.</p>
+    <p style="margin:10px 0;color:#fbbf24;font-size:.82rem; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1);">Nyawa/aset terancam? Segera telepon <a href="tel:112" style="color:white; font-weight:bold; background:#dc2626; padding:2px 8px; border-radius:999px; text-decoration:none; margin-left:4px;">112</a>.</p>
     
     <label for="rj">Klasifikasi yang Terlihat</label>
     <select id="rj">
@@ -160,18 +462,18 @@ input[type=checkbox],input[type=radio]{width:auto}
     </select>
     
     <label for="rl">Titik Koordinat (Klik Peta / Auto GPS)</label>
-    <div style="display:flex;gap:6px">
+    <div style="display:flex;gap:8px">
         <input id="rl" placeholder="-2.54, 112.95 (Pilih dari peta)">
-        <button id="gp" type="button" style="background:#153124;"><i class="fa-solid fa-location-crosshairs"></i></button>
+        <button id="gp" type="button" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.45); color:#f59e0b; border-radius:10px; padding:0 14px;" title="Ambil lokasi GPS"><i class="fa-solid fa-location-crosshairs"></i></button>
     </div>
     
     <label for="rk">Detail Situasi Lapangan</label>
     <textarea id="rk" rows="3" placeholder="Estimasi luas api, arah pergerakan angin, atau apakah ada warga di sekitar..."></textarea>
     
-    <div class="btns" style="margin-top:12px">
-        <button id="rs" style="width:100%; background:#cf3d16;border-color:#cf3d16; font-size:14px; padding:8px;"><i class="fa-solid fa-paper-plane"></i> Kirim Laporan ke Pusat</button>
+    <div class="btns" style="margin-top:14px">
+        <button id="rs" style="width:100%; background:linear-gradient(135deg,#dc2626,#ea580c); border:none; font-size:13px; padding:11px; border-radius:999px; box-shadow:0 8px 20px rgba(220,38,38,0.35);"><i class="fa-solid fa-paper-plane"></i> Kirim Laporan ke Pusat</button>
     </div>
-    <div id="rm" style="margin-top:8px;font-size:.85rem; color:#58c07f;" aria-live="polite"></div>
+    <div id="rm" style="margin-top:10px;font-size:.82rem; color:#34d399;" aria-live="polite"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -219,9 +521,9 @@ let rows=[],maxD="",khg=KHG0,aqm=[],rpm=[],rep=JSON.parse(localStorage.pw_rep||"
 
 /* UI PANEL & SEARCH */
 Object.keys(REGIONS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>map.flyTo({center:REGIONS[n].c,zoom:REGIONS[n].z,pitch:REGIONS[n].p,bearing:REGIONS[n].b,duration:2200});$("#rg").appendChild(b)});
-$("#hd").onclick=e=>{const o=$("#bd").hidden;$("#bd").hidden=!o;e.target.innerHTML=o?'<i class="fa-solid fa-chevron-up"></i> Ciutkan':'<i class="fa-solid fa-chevron-down"></i> Buka';e.target.setAttribute("aria-expanded",o)};
+$("#hd").onclick=e=>{const btn=e.currentTarget,o=$("#bd").hidden;$("#bd").hidden=!o;btn.innerHTML=o?'<i class="fa-solid fa-chevron-up"></i> Ciutkan':'<i class="fa-solid fa-chevron-down"></i> Buka';btn.setAttribute("aria-expanded",o)};
 
-/* LOGIKA SEARCH LOKASI (BARU) */
+/* LOGIKA SEARCH LOKASI */
 $("#loc-btn").onclick = async () => {
     const q = $("#loc-search").value.trim();
     if (!q) return;
@@ -274,7 +576,7 @@ async function loadKHG(){
  map.addLayer({id:"khf",type:"fill",source:"khg",paint:{"fill-color":"#a0673c","fill-opacity":.28}});
  map.addLayer({id:"khl",type:"line",source:"khg",paint:{"line-color":"#f0b07a","line-width":1.6,"line-dasharray":[3,2]}});
  map.on("click","khf",e=>{if(map.queryRenderedFeatures(e.point,{layers:["fp"].filter(l=>map.getLayer(l))}).length)return;const f=e.features[0],z=khg.features.find(x=>zn(x)==f.properties.nama)||f;
-  new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="pp"><b><i class="fa-solid fa-layer-group"></i> ${esc(zn(z))}</b>Kedalaman gambut ±${zd(z)} cm</div>`).addTo(map)});
+  new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="pp"><b><i class="fa-solid fa-layer-group" style="color:#d49664"></i> ${esc(zn(z))}</b>Kedalaman gambut ±${zd(z)} cm</div>`).addTo(map)});
  renderKV()}
 
 /* DATA TITIK PANAS (NASA FIRMS) */
@@ -308,7 +610,7 @@ function render(){if(!rows.length)return;const cut=shift(maxD,-(+$("#dy").value-
  $("#stat").innerHTML=`<b>${f.length.toLocaleString("id-ID")}</b> hotspot (hingga ${maxD})<br><span class="dot" style="background:#ff4a1c"></span>Api Permukaan: ${f.length-p} <br><span class="dot" style="background:#c06bff"></span>Bara Gambut Bawah Tanah: ${p}<br>Penyebab: Alam (${c("alam")}), Manusia (${c("manusia")})`;cards(f)}
 
 function popup(e){const p=e.features[0].properties,h=p.t.padStart(4,"0"),wib=new Date(`${p.d}T${h.slice(0,2)}:${h.slice(2)}:00Z`).toLocaleString("id-ID",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"});
- const pop=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="pp"><b><i class="fa-solid fa-fire text-[#ff6a3d]"></i> Titik Panas (${p.conf})</b>${wib} WIB, ${p.sat}<br>Klasifikasi: <b style="display:inline; color:${p.ly=="p"?'#c06bff':'#ff4a1c'}">${p.ly=="p"?"Bara Tanah Gambut":"Api Permukaan"}</b><br>${p.khg?`${esc(p.khg)}, Kedalaman ±${p.dp} cm<br>`:"Di luar kawasan gambut<br>"}Suhu ${p.tb} K, Emisi FRP ${p.frp} MW<br>Penyebab Terekam: <b style="display:inline">${CN[p.cause]}</b><div class="cs"><button data-c="alam">Faktor Alam</button><button data-c="manusia">Ulah Manusia</button><button data-c="invest">Investigasi</button></div></div>`).addTo(map);
+ const pop=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="pp"><b><i class="fa-solid fa-fire" style="color:#f59e0b"></i> Titik Panas (${p.conf})</b>${wib} WIB, ${p.sat}<br>Klasifikasi: <b style="display:inline; color:${p.ly=="p"?'#c06bff':'#ff4a1c'}">${p.ly=="p"?"Bara Tanah Gambut":"Api Permukaan"}</b><br>${p.khg?`${esc(p.khg)}, Kedalaman ±${p.dp} cm<br>`:"Di luar kawasan gambut<br>"}Suhu ${p.tb} K, Emisi FRP ${p.frp} MW<br>Penyebab Terekam: <b style="display:inline">${CN[p.cause]}</b><div class="cs"><button data-c="alam">Faktor Alam</button><button data-c="manusia">Ulah Manusia</button><button data-c="invest">Investigasi</button></div></div>`).addTo(map);
  pop.getElement().querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cause[p.key]=b.dataset.c;localStorage.pw_cause=JSON.stringify(cause);render();pop.remove()})}
 
 function renderKV(){const el=$("#kv");el.innerHTML=khg.features.map((z,i)=>{
@@ -317,7 +619,7 @@ function renderKV(){const el=$("#kv");el.innerHTML=khg.features.map((z,i)=>{
  return`<div class="card" data-z="${i}"><b>${esc(zn(z))}</b>Kedalaman gambut ±${zd(z)} cm<br>${rows.length?`Status Permukaan: ${s?"Aktif":"Tidak terdeteksi"}<br>Status Bara Gambut: ${b?"Terdeteksi (Thermal)":"Tidak terdeteksi"}<br>`:""}<b class="${v[0]}">${v[1]}</b></div>`}).join("");
  el.querySelectorAll("[data-z]").forEach(c=>c.onclick=()=>map.flyTo({center:center(khg.features[+c.dataset.z]),zoom:8.6,pitch:60,duration:2000}))}
 
-/* AQI & CUACA (TIDAK ADA PERUBAHAN CORE LOGIC) */
+/* AQI & CUACA */
 let AQ=[],worst=null,mk={},lastF=null,WG=[],wp=[],wctx=null,wOn=true;
 const AST=[[0,[95,194,122]],[50,[227,214,85]],[100,[240,160,64]],[150,[232,96,74]],[200,[160,90,156]],[300,[194,58,94]],[400,[120,30,60]]];
 function aqrgb(v){let i=0;while(i<AST.length-2&&v>AST[i+1][0])i++;const a=AST[i],b=AST[i+1],k=Math.max(0,Math.min(1,(v-a[0])/(b[0]-a[0])));return a[1].map((x,j)=>x+(b[1][j]-x)*k)}
@@ -352,13 +654,13 @@ async function loadWind(){const la=[-9,-5,-1,3,5],lo=[96,102,108,114,120,126,132
  try{const r=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${P.map(q=>q[0])}&longitude=${P.map(q=>q[1])}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms`)).json();
   r.forEach((a,i)=>{const s=a.current.wind_speed_10m,d=a.current.wind_direction_10m*Math.PI/180;WG.push({lat:P[i][0],lon:P[i][1],u:-s*Math.sin(d),v:-s*Math.cos(d)})});startWind()}catch(e){}}
 function wnd(lon,lat){let sw=0,su=0,sv=0;for(const g of WG){const d=(g.lon-lon)**2+(g.lat-lat)**2+.5,q=1/(d*d);sw+=q;su+=q*g.u;sv+=q*g.v}return[su/sw,sv/sw]}
-function startWind(){const cv=$("#wc");wctx=cv.getContext("2d");const fit=()=>{cv.width=innerWidth;cv.height=innerHeight},clr=()=>wctx.clearRect(0,0,cv.width,cv.height);fit();addEventListener("resize",fit);map.on("move",clr);
+function startWind(){const cv=$("#wc");wctx=cv.getContext("2d");const fit=()=>{cv.width=cv.clientWidth||innerWidth;cv.height=cv.clientHeight||(innerHeight-64)},clr=()=>wctx.clearRect(0,0,cv.width,cv.height);fit();addEventListener("resize",fit);map.on("move",clr);
  const sp=p=>{const b=map.getBounds();p.lon=b.getWest()+Math.random()*(b.getEast()-b.getWest());p.lat=b.getSouth()+Math.random()*(b.getNorth()-b.getSouth());p.age=Math.random()*80};for(let i=0;i<700;i++){const p={};sp(p);wp.push(p)}
  (function f(){requestAnimationFrame(f);if(!wOn||document.hidden)return;wctx.globalCompositeOperation="destination-in";wctx.fillStyle="rgba(0,0,0,.93)";wctx.fillRect(0,0,cv.width,cv.height);wctx.globalCompositeOperation="source-over";wctx.strokeStyle="rgba(255,255,255,.75)";wctx.lineWidth=1;wctx.beginPath();const dpp=360/(256*2**map.getZoom());
   for(const p of wp){const[u,v]=wnd(p.lon,p.lat),a=map.project([p.lon,p.lat]);p.lon+=u*.5*dpp/Math.cos(p.lat*Math.PI/180);p.lat+=v*.5*dpp;const b=map.project([p.lon,p.lat]);
    if(++p.age>90)sp(p);else{wctx.moveTo(a.x,a.y);wctx.lineTo(b.x,b.y)}}wctx.stroke()})()}
 
-/* FUNGSI LAPORAN WARGA */
+/* FUNGSI LAPOR WARGA */
 function addRep(r){const el=document.createElement("div");el.className="rpm";el.innerHTML="<i class='fa-solid fa-exclamation'></i>";
  rpm.push(new maplibregl.Marker({element:el}).setLngLat([r.lon,r.lat]).setPopup(new maplibregl.Popup().setHTML(`<div class="pp"><b>Laporan Crowdsourcing</b>${esc(r.j)}<br>${esc(r.k||"-")}<small>${new Date(r.t).toLocaleString("id-ID")}, Belum Diverifikasi</small></div>`)).addTo(map))}
 rep.forEach(addRep);
