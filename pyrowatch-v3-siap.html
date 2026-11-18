@@ -515,11 +515,11 @@ const CONFIG={
  FIRMS_KEY:"cabe647e690d9d3ce78cb0440a55740f", 
  SOURCE:"VIIRS_SNPP_NRT",BBOX:[95,-11,141,6],
  FRP_SURFACE:8,       
- KHG_URL:"",          
- REPORT_ENDPOINT:""}; 
+ KHG_URL:"api/khg.php",          
+ REPORT_ENDPOINT:"api/laporan.php"}; 
 
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const REGIONS={"Indonesia":{c:[113,-1.5],z:4.6,p:0,b:0},"Kalteng":{c:[113.6,-2.6],z:8.2,p:60,b:20},"Riau":{c:[102,0.6],z:8.3,p:60,b:-20},"Jambi":{c:[103.9,-1.6],z:8.3,p:60,b:10},"Sumsel":{c:[105.4,-3.3],z:8.2,p:60,b:-10},"Kalbar":{c:[109.5,-0.2],z:8.2,p:60,b:0}};
+let REGIONS={"Indonesia":{c:[113,-1.5],z:4.6,p:0,b:0},"Kalteng":{c:[113.6,-2.6],z:8.2,p:60,b:20},"Riau":{c:[102,0.6],z:8.3,p:60,b:-20},"Jambi":{c:[103.9,-1.6],z:8.3,p:60,b:10},"Sumsel":{c:[105.4,-3.3],z:8.2,p:60,b:-10},"Kalbar":{c:[109.5,-0.2],z:8.2,p:60,b:0}};
 
 const KHG0={type:"FeatureCollection",features:[
 ["KHG Sungai Sebangau",300,"Kalimantan Tengah",[[113,-2.2],[113.9,-2.3],[114,-3],[113.4,-3.3],[112.9,-2.9]]],
@@ -528,8 +528,8 @@ const KHG0={type:"FeatureCollection",features:[
 ["KHG Tanjung Jabung",250,"Jambi",[[103.7,-1.2],[104.3,-1.2],[104.4,-1.8],[103.9,-2],[103.6,-1.6]]],
 ["KHG Ogan Komering Ilir",200,"Sumatra Selatan",[[105,-2.8],[105.9,-2.9],[106.1,-3.5],[105.4,-3.7],[104.9,-3.3]]]
 ].map(z=>({type:"Feature",properties:{nama:z[0],kedalaman_cm:z[1],prov:z[2]},geometry:{type:"Polygon",coordinates:[[...z[3],z[3][0]]]}}))};
-const CITIES=[["Banda Aceh",5.55,95.32],["Medan",3.59,98.67],["Padang",-.95,100.35],["Pekanbaru",.51,101.45],["Dumai",1.67,101.45],["Batam",1.05,104.03],["Jambi",-1.61,103.61],["Bengkulu",-3.8,102.26],["Palembang",-2.99,104.76],["Pangkal Pinang",-2.13,106.11],["Bandar Lampung",-5.43,105.26],["Jakarta",-6.21,106.85],["Bandung",-6.91,107.61],["Semarang",-6.97,110.42],["Yogyakarta",-7.8,110.36],["Surabaya",-7.25,112.75],["Denpasar",-8.65,115.22],["Mataram",-8.58,116.12],["Kupang",-10.18,123.58],["Pontianak",-.03,109.33],["Singkawang",.91,108.98],["Sintang",.08,111.49],["Pangkalan Bun",-2.68,111.62],["Sampit",-2.54,112.95],["Palangka Raya",-2.21,113.92],["Muara Teweh",-.95,114.89],["Banjarmasin",-3.32,114.59],["Balikpapan",-1.24,116.83],["Samarinda",-.5,117.15],["Tarakan",3.3,117.63],["Manado",1.47,124.84],["Gorontalo",.54,123.06],["Palu",-.9,119.87],["Makassar",-5.15,119.43],["Kendari",-3.97,122.51],["Ternate",.79,127.38],["Ambon",-3.7,128.18],["Sorong",-.88,131.26],["Jayapura",-2.53,140.72],["Merauke",-8.5,140.4]];
-const AQC=[[50,"Baik","#5fc27a"],[100,"Sedang","#e3d655"],[150,"Tidak sehat bagi kelompok sensitif","#f0a040"],[200,"Tidak sehat","#e8604a"],[300,"Sangat tidak sehat","#a05a9c"],[1e9,"Berbahaya","#c23a5e"]];
+let CITIES=[["Banda Aceh",5.55,95.32],["Medan",3.59,98.67],["Padang",-.95,100.35],["Pekanbaru",.51,101.45],["Dumai",1.67,101.45],["Batam",1.05,104.03],["Jambi",-1.61,103.61],["Bengkulu",-3.8,102.26],["Palembang",-2.99,104.76],["Pangkal Pinang",-2.13,106.11],["Bandar Lampung",-5.43,105.26],["Jakarta",-6.21,106.85],["Bandung",-6.91,107.61],["Semarang",-6.97,110.42],["Yogyakarta",-7.8,110.36],["Surabaya",-7.25,112.75],["Denpasar",-8.65,115.22],["Mataram",-8.58,116.12],["Kupang",-10.18,123.58],["Pontianak",-.03,109.33],["Singkawang",.91,108.98],["Sintang",.08,111.49],["Pangkalan Bun",-2.68,111.62],["Sampit",-2.54,112.95],["Palangka Raya",-2.21,113.92],["Muara Teweh",-.95,114.89],["Banjarmasin",-3.32,114.59],["Balikpapan",-1.24,116.83],["Samarinda",-.5,117.15],["Tarakan",3.3,117.63],["Manado",1.47,124.84],["Gorontalo",.54,123.06],["Palu",-.9,119.87],["Makassar",-5.15,119.43],["Kendari",-3.97,122.51],["Ternate",.79,127.38],["Ambon",-3.7,128.18],["Sorong",-.88,131.26],["Jayapura",-2.53,140.72],["Merauke",-8.5,140.4]];
+let AQC=[[50,"Baik","#5fc27a"],[100,"Sedang","#e3d655"],[150,"Tidak sehat bagi kelompok sensitif","#f0a040"],[200,"Tidak sehat","#e8604a"],[300,"Sangat tidak sehat","#a05a9c"],[1e9,"Berbahaya","#c23a5e"]];
 const aqc=v=>AQC.find(c=>v<=c[0]);
 const gibsD=new Date(Date.now()-864e5).toISOString().slice(0,10);
 const gibs=(l,m,e)=>`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${l}/default/${gibsD}/${m}/{z}/{y}/{x}.${e}`;
@@ -551,7 +551,7 @@ map.addControl(new maplibregl.ScaleControl({unit:"metric"}));
 const note=t=>{const n=$("#note");n.hidden=!t;n.textContent=t||""};
 const vis=(id,on)=>map.getLayer(id)&&map.setLayoutProperty(id,"visibility",on?"visible":"none");
 const shift=(d,n)=>new Date(Date.parse(d+"T00:00:00Z")+n*864e5).toISOString().slice(0,10);
-let rows=[],maxD="",khg=KHG0,aqm=[],rpm=[],rep=JSON.parse(localStorage.pw_rep||"[]"),cause=JSON.parse(localStorage.pw_cause||"{}");
+let rows=[],maxD="",khg=KHG0,aqm=[],rpm=[],rep=[],cause=JSON.parse(localStorage.pw_cause||"{}");
 
 /* UI PANEL & SEARCH */
 Object.keys(REGIONS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>map.flyTo({center:REGIONS[n].c,zoom:REGIONS[n].z,pitch:REGIONS[n].p,bearing:REGIONS[n].b,duration:2200});$("#rg").appendChild(b)});
@@ -605,7 +605,7 @@ const zd=f=>f.properties.kedalaman_cm||f.properties.kedalaman||0;
 function center(f){const g=f.geometry,r=(g.type=="Polygon"?g.coordinates[0]:g.coordinates[0][0]),x=r.map(p=>p[0]),y=r.map(p=>p[1]);return[(Math.min(...x)+Math.max(...x))/2,(Math.min(...y)+Math.max(...y))/2]}
 
 async function loadKHG(){
- if(CONFIG.KHG_URL){try{khg=await (await fetch(CONFIG.KHG_URL)).json()}catch(e){note("KHG gagal dimuat, memakai perkiraan bawaan.")}}
+ if(CONFIG.KHG_URL){try{const j=await (await fetch(CONFIG.KHG_URL)).json();if(!j.features||!j.features.length)throw 0;khg=j}catch(e){note("KHG gagal dimuat, memakai perkiraan bawaan.")}}
  map.addSource("khg",{type:"geojson",data:khg});
  map.addLayer({id:"khf",type:"fill",source:"khg",paint:{"fill-color":["interpolate",["linear"],["to-number",["coalesce",["get","kedalaman_cm"],["get","kedalaman"],200]],100,"#c9a27a",250,"#a0673c",400,"#5b3a22"],"fill-opacity":.42}});
  map.addLayer({id:"khl",type:"line",source:"khg",paint:{"line-color":"#f0b07a","line-width":1.6,"line-dasharray":[3,2]}});
@@ -629,6 +629,10 @@ async function loadFires(){
   rows=parse(txt).map(r=>{const lon=+r.longitude,lat=+r.latitude,frp=+r.frp,z=khg.features.find(f=>inGeom([lon,lat],f.geometry));
    return{lon,lat,frp,conf:r.confidence,d:r.acq_date,t:r.acq_time,sat:r.satellite,tb:+r.bright_ti4,khg:z?zn(z):"",dp:z?zd(z):0,ly:z&&frp<CONFIG.FRP_SURFACE?"p":"s",key:lon.toFixed(3)+","+lat.toFixed(3)}});
   maxD=rows.reduce((a,r)=>r.d>a?r.d:a,"");
+  saveHotspots()
+ }catch(err){return dbFallback()}
+ mountFires()}
+function mountFires(){try{
   map.addSource("fires",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
   const rad=[["interpolate",["linear"],["zoom"],4,5,10,18],["interpolate",["linear"],["zoom"],4,2.5,10,7]];
   map.addLayer({id:"fg",type:"circle",source:"fires",paint:{"circle-color":E.d,"circle-radius":rad[0],"circle-blur":1,"circle-opacity":.55}});
@@ -645,7 +649,7 @@ function render(){if(!rows.length)return;const cut=shift(maxD,-(+$("#dy").value-
 
 function popup(e){const p=e.features[0].properties,h=p.t.padStart(4,"0"),wib=new Date(`${p.d}T${h.slice(0,2)}:${h.slice(2)}:00Z`).toLocaleString("id-ID",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"});
  const pop=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="pp"><b><i class="fa-solid fa-fire" style="color:#f59e0b"></i> Titik Panas (${p.conf})</b>${wib} WIB, ${p.sat}<br>Klasifikasi: <b style="display:inline; color:${p.ly=="p"?'#c06bff':'#ff4a1c'}">${p.ly=="p"?"Bara Tanah Gambut":"Api Permukaan"}</b><br>${p.khg?`${esc(p.khg)}, Kedalaman ±${p.dp} cm<br>`:"Di luar kawasan gambut<br>"}Suhu ${p.tb} K, Emisi FRP ${p.frp} MW<br>Penyebab Terekam: <b style="display:inline">${CN[p.cause]}</b><div class="cs"><button data-c="alam">Faktor Alam</button><button data-c="manusia">Ulah Manusia</button><button data-c="invest">Investigasi</button></div></div>`).addTo(map);
- pop.getElement().querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cause[p.key]=b.dataset.c;localStorage.pw_cause=JSON.stringify(cause);render();pop.remove()})}
+ pop.getElement().querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cause[p.key]=b.dataset.c;localStorage.pw_cause=JSON.stringify(cause);fetch("api/hotspot.php?aksi=penyebab",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:p.key,penyebab:b.dataset.c})}).catch(()=>{});render();pop.remove()})}
 
 const kmx=(a,b)=>{const r=Math.PI/180,dl=(b[0]-a[0])*r,dp=(b[1]-a[1])*r,x=Math.sin(dp/2)**2+Math.cos(a[1]*r)*Math.cos(b[1]*r)*Math.sin(dl/2)**2;return 12742*Math.asin(Math.sqrt(x))};
 function areaHa(f){const g=f.geometry,r=g.type=="Polygon"?g.coordinates[0]:g.coordinates[0][0],c=Math.cos(r[0][1]*Math.PI/180);let s=0;for(let i=0;i<r.length-1;i++)s+=r[i][0]*111.32*c*r[i+1][1]*110.57-r[i+1][0]*111.32*c*r[i][1]*110.57;return Math.abs(s)/2*100}
@@ -702,7 +706,7 @@ function startWind(){const cv=$("#wc");wctx=cv.getContext("2d");const fit=()=>{c
 
 /* FUNGSI LAPOR WARGA */
 function addRep(r){const el=document.createElement("div");el.className="rpm";el.innerHTML="<i class='fa-solid fa-exclamation'></i>";
- rpm.push(new maplibregl.Marker({element:el}).setLngLat([r.lon,r.lat]).setPopup(new maplibregl.Popup().setHTML(`<div class="pp"><b>Laporan Crowdsourcing</b>${esc(r.j)}<br>${esc(r.k||"-")}<small>${new Date(r.t).toLocaleString("id-ID")}, Belum Diverifikasi</small></div>`)).addTo(map))}
+ rpm.push(new maplibregl.Marker({element:el}).setLngLat([r.lon,r.lat]).setPopup(new maplibregl.Popup().setHTML(`<div class="pp"><b>Laporan Crowdsourcing</b>${esc(r.j)}<br>${esc(r.k||"-")}<small>${new Date(r.t).toLocaleString("id-ID")}, ${esc(r.s||"Belum Diverifikasi")}</small></div>`)).addTo(map))}
 rep.forEach(addRep);
 const setLL=ll=>$("#rl").value=ll.lat.toFixed(5)+", "+ll.lng.toFixed(5);
 $("#rc").onclick=()=>$("#rp").style.display="none";
@@ -712,7 +716,7 @@ $("#rs").onclick=async()=>{const q=$("#rl").value.split(",").map(Number);
  if(q.length!=2||q.some(isNaN)){$("#rm").textContent="Mohon pilih lokasi di peta terlebih dahulu.";return}
  const r={lat:q[0],lon:q[1],j:$("#rj").value,k:$("#rk").value.trim(),t:Date.now()};rep.push(r);localStorage.pw_rep=JSON.stringify(rep);addRep(r);
  let m="Laporan tersimpan di peta Anda.";
- if(CONFIG.REPORT_ENDPOINT){try{await fetch(CONFIG.REPORT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(r)});m="Laporan darurat berhasil dikirim ke Command Center."}catch(e){m="Koneksi server terputus, disimpan lokal."}}
+ if(CONFIG.REPORT_ENDPOINT){try{const x=await fetch(CONFIG.REPORT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(r)});if(!x.ok)throw 0;m="Laporan darurat berhasil dikirim ke Command Center."}catch(e){m="Koneksi server terputus, disimpan lokal."}}
  $("#rm").textContent=m;$("#rk").value="";};
 
 /* ===== KAWASAN HUTAN ===== */
@@ -757,7 +761,20 @@ $("#csv").onclick=()=>{if(!rows.length)return;const cut=shift(maxD,-(+$("#dy").v
 addEventListener("keydown",e=>{if(e.key=="Escape")$("#rp").style.display="none"});
 setInterval(()=>{if(map.getLayer("fg")&&!document.hidden)map.setPaintProperty("fg","circle-opacity",.5+.2*Math.sin(Date.now()/450))},90);
 
-map.on("load",async()=>{setColor();cards(null);await loadKHG();loadHutan();await loadFires();loadAQI();loadWind();
+/* ===== DATABASE (PHP + MySQL) ===== */
+function buildRegions(){$("#rg").innerHTML="";Object.keys(REGIONS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>map.flyTo({center:REGIONS[n].c,zoom:REGIONS[n].z,pitch:REGIONS[n].p,bearing:REGIONS[n].b,duration:2200});$("#rg").appendChild(b)})}
+async function loadDB(){try{const r=await fetch("api/peta.php");if(!r.ok)throw 0;const d=await r.json();
+ if(d.wilayah&&Object.keys(d.wilayah).length){REGIONS=d.wilayah;buildRegions()}
+ if(d.kota&&d.kota.length)CITIES=d.kota;if(d.aqi&&d.aqi.length)AQC=d.aqi;
+ if(d.jenis&&d.jenis.length)$("#rj").innerHTML=d.jenis.map(j=>`<option>${esc(j)}</option>`).join("");
+ Object.assign(cause,d.penyebab||{});
+ rpm.forEach(m=>m.remove());rpm=[];rep=d.laporan||[];rep.forEach(r=>addRep(r))
+ }catch(e){note("Database tidak terhubung, memakai data bawaan.");rep=JSON.parse(localStorage.pw_rep||"[]");rep.forEach(r=>addRep(r))}}
+function saveHotspots(){try{if(Date.now()-(+localStorage.pw_sv||0)<18e5)return;
+ fetch("api/hotspot.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({rows:rows.map(r=>({lon:r.lon,lat:r.lat,frp:r.frp,conf:r.conf,d:r.d,t:r.t,sat:r.sat,tb:r.tb,khg:r.khg,ly:r.ly}))})}).then(x=>{if(x.ok)localStorage.pw_sv=Date.now()}).catch(()=>{})}catch(e){}}
+async function dbFallback(){try{const r=await (await fetch("api/hotspot.php?days=5")).json();if(!r.ok||!r.data.length)throw 0;rows=r.data;maxD=rows.reduce((a,x)=>x.d>a?x.d:a,"");note("NASA FIRMS tidak terjangkau, menampilkan hotspot tersimpan di database.");mountFires()}catch(e){$("#stat").textContent="Gagal memuat API FIRMS NASA dan database."}}
+
+map.on("load",async()=>{setColor();cards(null);await loadDB();await loadKHG();loadHutan();await loadFires();loadAQI();loadWind();
  vis("fg",$("#cF").checked);vis("fp",$("#cF").checked);
  setTimeout(()=>{map.flyTo({center:[113.6,-2.6],zoom:8.2,pitch:60,bearing:20,duration:3500,essential:true});const k=[...$("#rg").children].find(b=>b.textContent=="Kalteng");k&&k.setAttribute("aria-pressed",true)},700)});
 </script>
