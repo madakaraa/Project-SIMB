@@ -1836,5 +1836,131 @@
             });
         }
     </script>
+<script>
+/* PyroWatch ID - lapisan animasi dinamis */
+(()=>{const st=document.createElement('style');st.textContent=`
+/* ===== DYNAMIC LAYER ===== */
+html{scroll-padding-top:72px}
+#scrollBar{position:fixed;top:0;left:0;height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#FBBF24,#EA580C);z-index:100}
+#toTop{position:fixed;right:22px;bottom:22px;width:46px;height:46px;border-radius:999px;background:#FBBF24;color:#1E252B;box-shadow:0 10px 28px rgba(0,0,0,.3);z-index:90;opacity:0;translate:0 20px;pointer-events:none;transition:opacity .4s,translate .4s,transform .25s}
+#toTop.show{opacity:1;translate:0 0;pointer-events:auto}
+#toTop:hover{transform:translateY(-4px) scale(1.06)}
+nav.sticky{transition:box-shadow .35s}
+nav.sticky>div:first-child{transition:height .35s ease}
+nav.nav-scrolled{box-shadow:0 10px 34px rgba(0,0,0,.38)}
+nav.nav-scrolled>div:first-child{height:3.5rem}
+.nav-link{position:relative}
+.nav-link::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;border-radius:2px;background:#FBBF24;transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.nav-link:hover::after,.nav-link.active::after{transform:scaleX(1)}
+html nav .nav-link.active{color:#FBBF24}
+/* reveal on scroll */
+html .reveal{opacity:0;translate:0 38px;will-change:opacity,translate;transition:opacity .9s cubic-bezier(.22,1,.36,1) var(--d,0s),translate .9s cubic-bezier(.22,1,.36,1) var(--d,0s),transform .35s ease,box-shadow .35s ease,border-color .3s ease}
+html .reveal.from-left{translate:-52px 0}
+html .reveal.from-right{translate:52px 0}
+html .reveal.in{opacity:1;translate:0 0}
+article:hover,.dampak-card:hover,#tim .grid>div:hover,[id^=strata-card]:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(15,23,42,.10)}
+/* hero */
+header{--mx:50%;--my:50%}
+header::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(520px circle at var(--mx) var(--my),rgba(251,191,36,.10),transparent 60%)}
+header .grid>div:last-child>div{transition:transform .35s ease-out}
+header h1 span.text-amberbrand{background:linear-gradient(90deg,#FBBF24,#FDE68A,#EA580C,#FBBF24);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+@keyframes shine{to{background-position:220% center}}
+.embers{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.ember-p{position:absolute;bottom:-12px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:#FBBF24;box-shadow:0 0 10px 2px rgba(234,88,12,.7);opacity:0;animation:rise var(--t) linear var(--dl) infinite}
+@keyframes rise{0%{opacity:0;transform:translate(0,0)}12%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),-75vh)}}
+/* living illustrations */
+svg path[fill="#EA580C"],svg path[fill="#F97316"],svg path[fill="#FBBF24"]{transform-box:fill-box;transform-origin:50% 100%;animation:flick 1.7s ease-in-out infinite}
+svg path[fill="#FBBF24"]{animation-duration:1.25s;animation-direction:reverse}
+@keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.93,1.08)}70%{transform:scale(1.05,.96)}}
+svg ellipse[fill="#FBBF24"],svg ellipse[fill="#EA580C"]{transform-box:fill-box;transform-origin:center;animation:glow 2.6s ease-in-out infinite}
+@keyframes glow{50%{opacity:.6;transform:scale(1.12)}}
+/* carousel slide choreography */
+.cause-slide .grid>div:first-child>*{opacity:0;translate:-26px 0;transition:opacity .7s ease,translate .8s cubic-bezier(.22,1,.36,1)}
+.cause-slide .grid>div:last-child svg{opacity:0;scale:.93;transition:opacity .8s ease .2s,scale 1s cubic-bezier(.22,1,.36,1) .2s}
+.cause-slide.is-active .grid>div:first-child>*{opacity:1;translate:0 0}
+.cause-slide.is-active .grid>div:last-child svg{opacity:1;scale:1}
+.cause-slide.is-active .grid>div:first-child>:nth-child(2){transition-delay:.1s}
+.cause-slide.is-active .grid>div:first-child>:nth-child(3){transition-delay:.2s}
+.cause-slide.is-active .grid>div:first-child>:nth-child(4){transition-delay:.3s}
+@media (prefers-reduced-motion:reduce){
+ html .reveal{opacity:1;translate:none;transition:none}
+ *{animation:none!important}
+ .cause-slide .grid>div>*,.cause-slide svg{opacity:1!important;translate:none!important;scale:none!important}
+}
+`;document.head.append(st);})();
+
+(()=>{
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=(s,r=document)=>[...r.querySelectorAll(s)];
+const bar=document.createElement('div');bar.id='scrollBar';document.body.append(bar);
+const topBtn=document.createElement('button');topBtn.id='toTop';topBtn.setAttribute('aria-label','Kembali ke atas');
+topBtn.innerHTML='<i class="fa-solid fa-arrow-up"></i>';topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.append(topBtn);
+
+/* floating embers in hero */
+const hero=document.querySelector('header');
+if(!reduce){const box=document.createElement('div');box.className='embers';
+ for(let i=0;i<22;i++){const p=document.createElement('span');p.className='ember-p';
+  p.style.cssText=`--x:${Math.random()*100}%;--s:${2+Math.random()*4}px;--t:${7+Math.random()*7}s;--dl:${-Math.random()*12}s;--dx:${(Math.random()-.5)*160}px`;box.append(p);}
+ hero.prepend(box);}
+
+/* reveal on scroll */
+const add=(sel,cls='',step=.1,mod=3)=>$(sel).forEach(el=>{el.classList.add('reveal');if(cls)el.classList.add(cls);
+ const sib=[...el.parentElement.children].filter(c=>c.classList.contains('reveal'));
+ el.style.setProperty('--d',(sib.indexOf(el)%mod)*step+'s');});
+add('header .grid > div:first-child > *','',.12,8);
+add('header .grid > div:last-child','from-right');
+document.querySelector('header .grid > div:last-child').style.setProperty('--d','.3s');
+add('section > div > div:first-child:not(.grid)','',.1,1);
+add('#edukasi .bg-surface-slate.rounded-2xl','from-left');
+add('#edukasi .border-b.border-line','',.1,1);
+add('article','',.15,2);
+add('#edukasi .bg-charcoal-900');
+add('[id^=strata-card]');
+add('#causeCarousel');
+add('.dampak-card','',.1,3);
+add('[id^=content-] > div:first-child','',.1,1);
+add('[id^=content-] .grid > *','',.1,2);
+add('#studi-kasus .grid > div:first-child','from-left');
+add('#studi-kasus .grid > div:last-child','from-right');
+add('#tim .grid > *','',.09,5);
+add('footer .max-w-7xl > *','',.12,3);
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+$('.reveal').forEach(el=>io.observe(el));
+
+/* scroll: progress, nav, parallax, scrollspy */
+const nav=document.querySelector('nav.sticky');
+const heroBg=hero.querySelector('svg');
+const heroCard=hero.querySelector('.grid > div:last-child > div');
+const links=$('nav > div > div:nth-child(2) a[href^="#"]');
+links.forEach(a=>a.classList.add('nav-link'));
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+let tick=false;
+function onScroll(){if(tick)return;tick=true;requestAnimationFrame(()=>{
+ const y=scrollY,h=document.documentElement.scrollHeight-innerHeight;
+ bar.style.transform=`scaleX(${h>0?y/h:0})`;
+ nav.classList.toggle('nav-scrolled',y>40);
+ topBtn.classList.toggle('show',y>700);
+ if(!reduce&&y<hero.offsetHeight){heroBg.style.translate=`0 ${y*.18}px`;heroCard.style.translate=`0 ${-y*.05}px`;}
+ let cur=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.35)cur=i;});
+ links.forEach((a,i)=>a.classList.toggle('active',i===cur));
+ tick=false;});}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+/* hero: mouse glow + 3D tilt */
+if(!reduce&&matchMedia('(hover:hover)').matches){
+ hero.addEventListener('mousemove',e=>{const r=hero.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+  hero.style.setProperty('--mx',e.clientX-r.left+'px');hero.style.setProperty('--my',e.clientY-r.top+'px');
+  heroCard.style.transform=`perspective(1000px) rotateY(${x*7}deg) rotateX(${-y*7}deg)`;});
+ hero.addEventListener('mouseleave',()=>heroCard.style.transform='');
+}
+
+/* carousel: mark active slide */
+const track=document.getElementById('causeTrack'),slides=$('.cause-slide',track);
+const setActive=()=>{const m=/-?([\d.]+)%/.exec(track.style.transform||'');const i=m?Math.round(parseFloat(m[1])/100):0;slides.forEach((s,k)=>s.classList.toggle('is-active',k===i));};
+new MutationObserver(setActive).observe(track,{attributes:true,attributeFilter:['style']});setActive();
+})();
+
+</script>
 </body>
 </html>
