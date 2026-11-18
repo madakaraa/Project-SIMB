@@ -274,14 +274,75 @@ $pascaIcons = ['fa-mountain', 'fa-seedling', 'fa-droplet', 'fa-shield-halved', '
 // -------------------------------------------------------------------------
 // 5. PENGOLAHAN DATA STUDI KASUS INTERNASIONAL
 // -------------------------------------------------------------------------
-$studiList = $dbData['studi'] ?? [];
-$studiUtama = $studiList[0] ?? [
-    'judul' => 'White Rock, British Columbia, Kanada (2021)',
-    'lokasi' => 'British Columbia, Kanada',
-    'tahun' => '2021',
-    'sumber' => 'CTV News, 13 Juli 2021',
-    'deskripsi' => 'Dokumentasi berita pada 13 Juli 2021 memperlihatkan kebakaran hutan dahsyat melanda wilayah British Columbia. Dipicu gelombang panas ekstrem (heat dome), api membakar vegetasi konifer kering hingga memicu Api Tajuk (Crown Fire). Ratusan titik kebakaran terjadi serentak, membuktikan bahwa karhutla mampu merusak ekosistem luas dan menurunkan kualitas udara lintas batas negara secara global.'
-];
+$studiList = array_values(array_filter($dbData['studi'] ?? [], 'is_array'));
+
+// Helper studi kasus: ambil nilai pertama yang terisi dari beberapa kemungkinan nama kolom
+if (!function_exists('studi_pick')) {
+    function studi_pick($row, array $keys) {
+        foreach ($keys as $k) {
+            if (isset($row[$k]) && trim((string)$row[$k]) !== '') return trim((string)$row[$k]);
+        }
+        return '';
+    }
+}
+// Validasi path/URL gambar: hanya http(s) atau path relatif aman (tanpa "..")
+if (!function_exists('studi_media_url')) {
+    function studi_media_url($v) {
+        $v = str_replace('\\', '/', trim((string)$v));
+        if ($v === '' || strpos($v, '..') !== false) return '';
+        if (preg_match('#^https?://#i', $v)) return $v;
+        return preg_match('#^[A-Za-z0-9_\-./%]+$#', $v) ? $v : '';
+    }
+}
+// Validasi link berita: hanya http/https (mencegah javascript: dll)
+if (!function_exists('studi_link_url')) {
+    function studi_link_url($v) {
+        $v = trim((string)$v);
+        return preg_match('#^https?://#i', $v) ? $v : '';
+    }
+}
+if (!function_exists('studi_domain')) {
+    function studi_domain($url) {
+        $host = parse_url((string)$url, PHP_URL_HOST);
+        return $host ? preg_replace('/^www\./i', '', $host) : '';
+    }
+}
+
+// Data bawaan jika tabel studi kasus di database masih kosong
+if (empty($studiList)) {
+    $studiList = [[
+        'judul' => 'White Rock, British Columbia, Kanada (2021)',
+        'lokasi' => 'British Columbia, Kanada',
+        'tahun' => '2021',
+        'sumber' => 'CTV News, 13 Juli 2021',
+        'deskripsi' => 'Dokumentasi berita pada 13 Juli 2021 memperlihatkan kebakaran hutan dahsyat melanda wilayah British Columbia. Dipicu gelombang panas ekstrem (heat dome), api membakar vegetasi konifer kering hingga memicu Api Tajuk (Crown Fire). Ratusan titik kebakaran terjadi serentak, membuktikan bahwa karhutla mampu merusak ekosistem luas dan menurunkan kualitas udara lintas batas negara secara global.',
+        'gambar' => 'uploads/studi/karhutla-bc-2021.jpg',
+        'link_berita' => '',
+        'tipe_dominan' => 'Api Tajuk (Crown Fire)',
+        'faktor_pemicu' => 'Gelombang Panas (Heat Dome)'
+    ]];
+}
+$studiTotal = count($studiList);
+$studiPad = max(2, strlen((string)$studiTotal));
+
+// Ilustrasi vektor cadangan: tampil jika kasus belum punya gambar atau file gambarnya gagal dimuat
+$studiFallbackSvg = <<<'SVG'
+<svg class="w-full h-full" viewBox="0 0 500 310" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi studi kasus kebakaran hutan">
+    <rect width="500" height="310" fill="#14191E"/>
+    <path d="M55 210C55 102 142 28 250 28C358 28 445 102 445 210" stroke="#EA580C" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="6 5"/>
+    <polygon points="20,235 155,95 285,235" fill="#1E293B"/>
+    <polygon points="195,235 345,82 485,235" fill="#273444"/>
+    <circle cx="332" cy="112" r="34" fill="#94A3B8" fill-opacity="0.35"/>
+    <circle cx="368" cy="86" r="42" fill="#CBD5E1" fill-opacity="0.28"/>
+    <circle cx="412" cy="64" r="38" fill="#E2E8F0" fill-opacity="0.2"/>
+    <path d="M292 156C292 156 318 178 318 202C318 218 306 230 292 230C278 230 266 218 266 202C266 187 279 170 292 156Z" fill="#EA580C"/>
+    <path d="M342 146C342 146 366 168 366 194C366 210 355 222 342 222C329 222 318 210 318 194C318 178 330 160 342 146Z" fill="#FBBF24"/>
+    <polygon points="75,180 50,235 100,235" fill="#15803D"/>
+    <polygon points="122,168 94,235 150,235" fill="#166534"/>
+    <polygon points="172,184 148,235 196,235" fill="#15803D"/>
+    <rect x="0" y="235" width="500" height="75" fill="#0F172A"/>
+</svg>
+SVG;
 
 // -------------------------------------------------------------------------
 // 6. PENGOLAHAN DATA TIM KELOMPOK PENGEMBANG
@@ -1268,79 +1329,115 @@ if (empty($timList)) {
     <!-- ===================================================================== -->
     <section id="studi-kasus" class="py-20 lg:py-24 bg-surface-slate border-b border-line">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-line rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(15,23,42,0.04)] grid lg:grid-cols-12">
-                <!-- Kolom Kiri: Visual Ilustrasi Fenomena Heat Dome & Koordinat -->
-                <div class="lg:col-span-6 bg-charcoal-900 p-6 sm:p-8 flex flex-col justify-between">
-                    <div class="flex items-center justify-between font-mono text-[11px] text-slate-400 mb-4">
-                        <span class="text-amberbrand font-semibold">CASE ARCHIVE • <?= strtoupper(h($studiUtama['tahun'] ?? '2021')) ?></span>
-                        <span>49.0253° N, 122.8029° W</span>
+            <!-- Carousel studi kasus: 1 kasus = tampil diam, 2+ kasus = geser otomatis -->
+            <div id="studiCarousel" class="relative bg-white border border-line rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(15,23,42,0.04)]" data-total="<?= (int)$studiTotal ?>" <?= $studiTotal > 1 ? 'tabindex="0" aria-roledescription="carousel" aria-label="Riwayat studi kasus karhutla"' : '' ?>>
+                <div class="overflow-hidden">
+                    <div id="studiTrack" class="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform">
+                    <?php foreach ($studiList as $sIdx => $sk):
+                        $skJudul   = studi_pick($sk, ['judul']);
+                        $skLokasi  = studi_pick($sk, ['lokasi']);
+                        $skTahun   = studi_pick($sk, ['tahun']);
+                        $skSumber  = studi_pick($sk, ['sumber']);
+                        $skDesk    = studi_pick($sk, ['deskripsi']);
+                        $skTipe    = studi_pick($sk, ['tipe_dominan', 'tipe']);
+                        $skPemicu  = studi_pick($sk, ['faktor_pemicu', 'pemicu']);
+                        $skImg     = studi_media_url(studi_pick($sk, ['gambar', 'foto', 'gambar_url', 'image']));
+                        $skLink    = studi_link_url(studi_pick($sk, ['link_berita', 'link', 'url_berita', 'url', 'referensi']));
+                        $skDomain  = studi_domain($skLink);
+                        $skNo      = str_pad((string)($sIdx + 1), $studiPad, '0', STR_PAD_LEFT);
+                        $skTot     = str_pad((string)$studiTotal, $studiPad, '0', STR_PAD_LEFT);
+                    ?>
+                    <div class="studi-slide w-full flex-shrink-0 grid lg:grid-cols-12">
+                        <!-- Kolom Kiri: Foto dokumentasi asli (atau ilustrasi cadangan) -->
+                        <div class="lg:col-span-6 bg-charcoal-900 p-6 sm:p-8 flex flex-col justify-between">
+                            <div class="flex items-center justify-between font-mono text-[11px] text-slate-400 mb-4">
+                                <span class="text-amberbrand font-semibold">CASE ARCHIVE<?= $skTahun !== '' ? ' • ' . h(strtoupper($skTahun)) : '' ?></span>
+                                <span><?= $studiTotal > 1 ? 'KASUS ' . $skNo . ' / ' . $skTot : h($skLokasi) ?></span>
+                            </div>
+
+                            <div class="relative aspect-[16/10] rounded-2xl overflow-hidden bg-charcoal-950 border border-white/10">
+                                <?php if ($skImg !== ''): ?>
+                                <img src="<?= h($skImg) ?>" alt="<?= h($skJudul) ?>" decoding="async" class="absolute inset-0 w-full h-full object-cover"
+                                     onerror="this.onerror=null;this.style.display='none';var f=this.parentNode.querySelector('.studi-fallback');if(f)f.classList.remove('hidden');var c=this.parentNode.querySelector('.studi-caption');if(c)c.classList.add('hidden');">
+                                <div class="studi-fallback hidden absolute inset-0"><?= $studiFallbackSvg ?></div>
+                                <div class="studi-caption absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-4 pt-10 pb-3 font-mono text-[10px] sm:text-[11px] text-slate-200 uppercase tracking-wider">
+                                    <i class="fa-solid fa-camera text-amberbrand mr-1.5"></i> Foto dokumentasi<?= $skSumber !== '' ? ' • ' . h($skSumber) : '' ?>
+                                </div>
+                                <?php else: ?>
+                                <div class="absolute inset-0"><?= $studiFallbackSvg ?></div>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="mt-4 flex items-center justify-between gap-3 text-xs text-slate-300 font-mono">
+                                <span class="truncate"><i class="fa-solid fa-newspaper text-ember mr-1.5"></i> Source: <?= h($skSumber !== '' ? $skSumber : ($skDomain !== '' ? $skDomain : '-')) ?></span>
+                                <span class="shrink-0"><?= h($skLokasi) ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan: Narasi, parameter kejadian & link referensi berita -->
+                        <div class="lg:col-span-6 p-7 sm:p-10 lg:p-12 flex flex-col justify-center">
+                            <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-ember block mb-2.5">
+                                05 / Studi Kasus Internasional
+                            </span>
+                            <h3 class="font-display font-bold text-2xl sm:text-4xl text-ink tracking-tight mb-4">
+                                <?= h($skJudul) ?>
+                            </h3>
+                            <p class="text-ink-body text-sm sm:text-base leading-relaxed mb-7">
+                                <?= h($skDesk) ?>
+                            </p>
+
+                            <div class="grid grid-cols-2 gap-4 pt-6 border-t border-line font-mono text-xs">
+                                <div>
+                                    <span class="text-ink-muted block">LOKASI & TAHUN</span>
+                                    <span class="text-ink font-bold mt-1 block"><?= h($skLokasi . ($skTahun !== '' ? ' (' . $skTahun . ')' : '')) ?></span>
+                                </div>
+                                <?php if ($skTipe !== ''): ?>
+                                <div>
+                                    <span class="text-ink-muted block">TIPE DOMINAN</span>
+                                    <span class="text-ember font-bold mt-1 block"><?= h($skTipe) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if ($skPemicu !== ''): ?>
+                                <div>
+                                    <span class="text-ink-muted block">FAKTOR PEMICU</span>
+                                    <span class="text-ink font-bold mt-1 block"><?= h($skPemicu) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <div>
+                                    <span class="text-ink-muted block">SUMBER DOKUMENTASI</span>
+                                    <span class="text-ink font-bold mt-1 block"><?= h($skSumber !== '' ? $skSumber : '-') ?></span>
+                                </div>
+                            </div>
+
+                            <?php if ($skLink !== ''): ?>
+                            <a href="<?= h($skLink) ?>" target="_blank" rel="noopener noreferrer nofollow"
+                               class="mt-7 self-start inline-flex items-center gap-2.5 bg-charcoal-900 hover:bg-ember text-white font-bold text-xs px-5 py-3 rounded-full transition-colors">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+                                Baca referensi berita<?= $skDomain !== '' ? ' • ' . h($skDomain) : '' ?>
+                            </a>
+                            <?php endif; ?>
+                        </div>
                     </div>
-
-                    <svg class="w-full h-auto rounded-2xl bg-charcoal-950 border border-white/10" viewBox="0 0 500 310" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi studi kasus kebakaran hutan">
-                        <rect width="500" height="310" fill="#14191E"/>
-                        <path d="M55 210C55 102 142 28 250 28C358 28 445 102 445 210" stroke="#EA580C" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="6 5"/>
-                        <rect x="174" y="18" width="152" height="22" rx="11" fill="#EA580C"/>
-                        <text x="250" y="32" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">ANOMALI HEAT DOME</text>
-
-                        <polygon points="20,235 155,95 285,235" fill="#1E293B"/>
-                        <polygon points="195,235 345,82 485,235" fill="#273444"/>
-
-                        <circle cx="332" cy="112" r="34" fill="#94A3B8" fill-opacity="0.35"/>
-                        <circle cx="368" cy="86" r="42" fill="#CBD5E1" fill-opacity="0.28"/>
-                        <circle cx="412" cy="64" r="38" fill="#E2E8F0" fill-opacity="0.2"/>
-
-                        <path d="M292 156C292 156 318 178 318 202C318 218 306 230 292 230C278 230 266 218 266 202C266 187 279 170 292 156Z" fill="#EA580C"/>
-                        <path d="M342 146C342 146 366 168 366 194C366 210 355 222 342 222C329 222 318 210 318 194C318 178 330 160 342 146Z" fill="#FBBF24"/>
-
-                        <polygon points="75,180 50,235 100,235" fill="#15803D"/>
-                        <polygon points="122,168 94,235 150,235" fill="#166534"/>
-                        <polygon points="172,184 148,235 196,235" fill="#15803D"/>
-
-                        <rect x="0" y="235" width="500" height="75" fill="#0F172A"/>
-                        <line x1="36" y1="258" x2="180" y2="258" stroke="#38BDF8" stroke-opacity="0.35" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="250" y1="274" x2="430" y2="274" stroke="#38BDF8" stroke-opacity="0.25" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-
-                    <div class="mt-4 flex items-center justify-between text-xs text-slate-300 font-mono">
-                        <span><i class="fa-brands fa-youtube text-ember mr-1.5"></i> Source: <?= h($studiUtama['sumber'] ?? 'CTV News') ?></span>
-                        <span><?= h($studiUtama['lokasi'] ?? 'British Columbia, Kanada') ?></span>
+                    <?php endforeach; ?>
                     </div>
                 </div>
 
-                <!-- Kolom Kanan: Narasi Studi Kasus & Parameter Kejadian -->
-                <div class="lg:col-span-6 p-7 sm:p-10 lg:p-12 flex flex-col justify-center">
-                    <span class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-ember block mb-2.5">
-                        05 / Studi Kasus Internasional
-                    </span>
-                    <h3 class="font-display font-bold text-2xl sm:text-4xl text-ink tracking-tight mb-4">
-                        <?= h($studiUtama['judul']) ?>
-                    </h3>
-                    <p class="text-ink-body text-sm sm:text-base leading-relaxed mb-7">
-                        <?= h($studiUtama['deskripsi']) ?>
-                    </p>
-
-                    <div class="grid grid-cols-2 gap-4 pt-6 border-t border-line font-mono text-xs">
-                        <div>
-                            <span class="text-ink-muted block">LOKASI & TAHUN</span>
-                            <span class="text-ink font-bold mt-1 block"><?= h(($studiUtama['lokasi'] ?? 'White Rock, Kanada') . (!empty($studiUtama['tahun']) ? ' (' . $studiUtama['tahun'] . ')' : '')) ?></span>
-                        </div>
-                        <div>
-                            <span class="text-ink-muted block">TIPE DOMINAN</span>
-                            <span class="text-ember font-bold mt-1 block">Api Tajuk (Crown Fire)</span>
-                        </div>
-                        <div>
-                            <span class="text-ink-muted block">FAKTOR PEMICU</span>
-                            <span class="text-ink font-bold mt-1 block">Gelombang Panas (Heat Dome)</span>
-                        </div>
-                        <div>
-                            <span class="text-ink-muted block">SUMBER DOKUMENTASI</span>
-                            <span class="text-ink font-bold mt-1 block"><?= h($studiUtama['sumber'] ?? 'YouTube CTV News') ?></span>
-                        </div>
-                    </div>
+                <?php if ($studiTotal > 1): ?>
+                <!-- Kontrol carousel (hanya muncul jika kasus lebih dari 1) -->
+                <div class="bg-surface-slate border-t border-line px-6 sm:px-10 py-4 flex items-center justify-between gap-4">
+                    <button id="studiPrev" type="button" aria-label="Studi kasus sebelumnya" class="w-10 h-10 rounded-full border border-line bg-white hover:bg-charcoal-900 hover:text-white hover:border-charcoal-900 text-ink flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-arrow-left text-xs"></i>
+                    </button>
+                    <div id="studiDots" class="flex items-center justify-center gap-2.5 flex-wrap" role="tablist" aria-label="Navigasi studi kasus"></div>
+                    <button id="studiNext" type="button" aria-label="Studi kasus berikutnya" class="w-10 h-10 rounded-full border border-line bg-white hover:bg-charcoal-900 hover:text-white hover:border-charcoal-900 text-ink flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
+
 
     <!-- ===================================================================== -->
     <!-- 9. SECTION TIM KELOMPOK (#tim — DAFTAR ANGGOTA OTOMATIS DARI DB)      -->
@@ -1713,8 +1810,6 @@ if (empty($timList)) {
     add('.dampak-card','',.1,3);
     add('[id^=content-] > div:first-child','',.1,1);
     add('[id^=content-] .grid > *','',.1,2);
-    add('#studi-kasus .grid > div:first-child','from-left');
-    add('#studi-kasus .grid > div:last-child','from-right');
     add('#tim .grid > *','',.09,5);
     add('footer .max-w-7xl > *','',.12,3);
 
@@ -1791,6 +1886,77 @@ if (empty($timList)) {
                 }, 3500);
             }
         }
+    })();
+    </script>
+    <!-- Carousel Studi Kasus: 1 kasus = diam, 2+ kasus = geser otomatis -->
+    <script>
+    (function initStudiCarousel() {
+        const root = document.getElementById('studiCarousel');
+        const track = document.getElementById('studiTrack');
+        if (!root || !track) return;
+        const slides = Array.from(track.querySelectorAll('.studi-slide'));
+        const total = slides.length;
+        if (total < 2) return; // hanya 1 kasus: tetap diam, tanpa animasi geser
+
+        const dotsBox = document.getElementById('studiDots');
+        const prevBtn = document.getElementById('studiPrev');
+        const nextBtn = document.getElementById('studiNext');
+        const INTERVAL_MS = 6500;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let idx = 0, timer = null, paused = false;
+
+        function renderDots() {
+            dotsBox.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const d = document.createElement('button');
+                d.type = 'button';
+                d.setAttribute('aria-label', 'Tampilkan studi kasus ' + (i + 1));
+                d.setAttribute('aria-selected', String(i === idx));
+                d.className = i === idx
+                    ? 'h-2.5 w-9 rounded-full bg-ember transition-all duration-300'
+                    : 'h-2.5 w-2.5 rounded-full bg-slate-300 hover:bg-slate-400 transition-all duration-300';
+                d.addEventListener('click', () => { go(i); restart(); });
+                dotsBox.appendChild(d);
+            }
+        }
+        function go(i) {
+            idx = ((i % total) + total) % total;
+            track.style.transform = 'translate3d(-' + (idx * 100) + '%,0,0)';
+            slides.forEach((s, k) => {
+                s.setAttribute('aria-hidden', String(k !== idx));
+                if ('inert' in s) s.inert = (k !== idx); // slide tersembunyi tidak bisa difokus keyboard
+            });
+            renderDots();
+        }
+        function stop() { clearInterval(timer); timer = null; }
+        function start() {
+            stop();
+            if (reduceMotion) return; // hormati preferensi "kurangi gerakan"
+            timer = setInterval(() => { if (!paused && !document.hidden) go(idx + 1); }, INTERVAL_MS);
+        }
+        function restart() { start(); }
+
+        prevBtn.addEventListener('click', () => { go(idx - 1); restart(); });
+        nextBtn.addEventListener('click', () => { go(idx + 1); restart(); });
+        root.addEventListener('mouseenter', () => { paused = true; });
+        root.addEventListener('mouseleave', () => { paused = false; });
+        root.addEventListener('focusin', () => { paused = true; });
+        root.addEventListener('focusout', () => { paused = false; });
+        root.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') { go(idx - 1); restart(); }
+            else if (e.key === 'ArrowRight') { go(idx + 1); restart(); }
+        });
+
+        let touchX = 0;
+        root.addEventListener('touchstart', (e) => { touchX = e.changedTouches[0].screenX; paused = true; }, { passive: true });
+        root.addEventListener('touchend', (e) => {
+            const dx = touchX - e.changedTouches[0].screenX;
+            if (Math.abs(dx) > 40) go(dx > 0 ? idx + 1 : idx - 1);
+            paused = false; restart();
+        }, { passive: true });
+
+        go(0);
+        start();
     })();
     </script>
 </body>
