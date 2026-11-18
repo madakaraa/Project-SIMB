@@ -75,6 +75,11 @@ tbody tr{transition:background .15s}tbody tr:hover{background:rgba(255,255,255,.
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#14532d;border:1px solid #22c55e;color:#dcfce7;padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:all .3s;z-index:30}
 #toast.show{opacity:1;transform:translate(-50%,0)}#toast.err{background:#7f1d1d;border-color:#ef4444;color:#fee2e2}
 
+/* Upload gambar di form & thumbnail di tabel */
+.pv{display:block;max-width:100%;max-height:150px;margin-top:8px;border-radius:10px;border:1px solid var(--ln);object-fit:cover}
+.thm{display:block;width:88px;height:54px;object-fit:cover;border-radius:8px;border:1px solid var(--ln)}
+input[type=file]{padding:7px 10px;font-size:.8rem;cursor:pointer}
+
 /* Responsivitas layar mobile (< 820px): sidebar berubah menjadi menu bar horizontal di atas */
 @media(max-width:820px){.wrap{grid-template-columns:1fr}aside{display:flex;overflow-x:auto;gap:4px;padding:8px;border-right:none;border-bottom:1px solid var(--ln)}aside h6{display:none}aside button{width:auto;white-space:nowrap}.bar input{width:100%}}
 </style>
@@ -129,14 +134,45 @@ tbody tr{transition:background .15s}tbody tr:hover{background:rgba(255,255,255,.
 <script>
 // Helper singkat untuk seleksi elemen DOM ($), sanitasi HTML anti-XSS (esc), dan penyimpanan state (S)
 // S.t = nama tabel yang sedang dibuka | S.m = metadata kolom & relasi tabel aktif
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]));
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const S={t:null,m:null};
+
+// Kolom bernama gambar/foto dirender sebagai upload file; kolom link/url sebagai input URL
+const isImg=n=>/^(gambar|foto|image|img)$/i.test(n),isUrl=n=>/^(link|link_berita|url|url_berita)$/i.test(n);
+
+// Perkecil gambar di browser (maks 1600px, JPEG) agar lolos batas upload_max_filesize server
+async function kecilkan(file){
+  if(!/^image\/(jpeg|png|webp)$/.test(file.type))return file;
+  try{
+    const bmp=await createImageBitmap(file),sc=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    if(sc===1&&file.size<1500000)return file;
+    const cv=document.createElement('canvas');cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);
+    const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(bmp,0,0,cv.width,cv.height);
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.86));
+    return blob&&blob.size<file.size?new File([blob],file.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):file;
+  }catch(e){return file}
+}
+// Kirim file ke api/upload.php, mengembalikan {ok, path}
+async function unggah(file){
+  const fd=new FormData();fd.append('gambar',file);
+  let r;try{r=await fetch('api/upload.php',{method:'POST',body:fd,credentials:'same-origin',headers:{'X-Requested-With':'fetch'}})}
+  catch(e){return {ok:false,error:'Tidak bisa terhubung ke server untuk upload.'}}
+  try{return await r.json()}catch(e){return {ok:false,error:'Respons upload tidak valid. Pastikan file api/upload.php sudah ada.'}}
+}
+// Sel tabel: thumbnail untuk kolom gambar, chip untuk enum, teks terpotong untuk lainnya
+function sel(c,s){
+  if(c.type=='enum')return `<td><span class="chip">${esc(s)}</span></td>`;
+  if(isImg(c.n))return `<td>${s?`<img class="thm" src="${esc(s)}" alt="" onerror="this.replaceWith(document.createTextNode('(file tidak ditemukan)'))">`:'<span class="mu">–</span>'}</td>`;
+  return `<td title="${esc(s)}">${s?esc(s.length>80?s.slice(0,80)+'…':s):'<span class="mu">–</span>'}</td>`;
+}
 
 // Fungsi terpusat untuk mengirim request GET / POST JSON ke endpoint di folder api/
 async function api(u,body){
   const o=body?{method:'POST',body:JSON.stringify(body)}:{};
-  const r=await fetch('api/'+u,{credentials:'same-origin',headers:{'Content-Type':'application/json','X-Requested-With':'fetch'},...o});
-  let d;try{d=await r.json()}catch(e){d={ok:false,error:'Server tidak merespons. Pastikan Apache & MySQL menyala dan halaman dibuka lewat http://localhost.'}}
+  let r;
+  try{r=await fetch('api/'+u,{credentials:'same-origin',headers:{'Content-Type':'application/json','X-Requested-With':'fetch'},...o})}
+  catch(e){return {ok:false,error:'Tidak bisa terhubung ke server. Pastikan Apache & MySQL menyala dan halaman dibuka lewat http://localhost (bukan file://).'}}
+  let d;try{d=await r.json()}catch(e){d={ok:false,error:'Respons server tidak valid (cek api/auth.php & api/admin.php, atau koneksi database).'}}
   // Jika status HTTP 401 (sesi habis / belum login), otomatis kembalikan ke layar login
   if(r.status===401&&u.indexOf('auth.php')<0)tampil(false);
   return d;
@@ -149,7 +185,7 @@ function toast(m,err){const t=$('#toast');t.textContent=m;t.className='show'+(er
 function tampil(ok){$('#login').hidden=ok;$('#app').hidden=!ok}
 
 // Cek status login saat halaman pertama kali dibuka
-async function init(){const d=await api('auth.php?aksi=status');tampil(!!d.ok);if(d.ok)muatTabel();else if(d.error)$('#le').textContent=d.error}
+async function init(){tampil(false);const d=await api('auth.php?aksi=status');tampil(!!d.ok);if(d.ok)muatTabel();else if(d.error)$('#le').textContent=d.error}
 
 // Proses submit form login ke api/auth.php?aksi=login
 $('#lf').onsubmit=async e=>{e.preventDefault();const d=await api('auth.php?aksi=login',{u:$('#lu').value,p:$('#lp').value});
@@ -161,6 +197,7 @@ $('#lo').onclick=async()=>{try{await api('auth.php?aksi=logout',{})}catch(e){}se
 // Ambil daftar seluruh tabel dari backend lalu kelompokkan berdasarkan kategori ('grup') di sidebar
 async function muatTabel(){
   const d=await api('admin.php?aksi=semua');if(!d.ok)return toast(d.error,1);
+  if(!d.tabel||!d.tabel.length)return toast('Tidak ada tabel yang bisa dikelola.',1);
   const g={};d.tabel.forEach(x=>(g[x.grup]=g[x.grup]||[]).push(x));
   $('#nav').innerHTML=Object.entries(g).map(([k,v])=>`<h6>${esc(k)}</h6>`+v.map(x=>`<button data-t="${x.t}"><i class="fa-solid ${x.ic}"></i>${esc(x.label)}</button>`).join('')).join('');
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{$('#q').value='';buka(b.dataset.t)});
@@ -178,7 +215,7 @@ async function buka(t){
   $('#tb').innerHTML=d.rows.length?d.rows.map(r=>`<tr><td class="mu">${r.id}</td>`+d.cols.map(c=>{
       const s=String((c.type=='fk'?fkv(c,r[c.n]):r[c.n])??'');
       // Jika tipe kolom 'enum', tampilkan sebagai badge/chip; jika teks panjang (>80 huruf), potong dengan '…'
-      return c.type=='enum'?`<td><span class="chip">${esc(s)}</span></td>`:`<td title="${esc(s)}">${s?esc(s.length>80?s.slice(0,80)+'…':s):'<span class="mu">–</span>'}</td>`
+      return sel(c,s)
     }).join('')+`<td class="ac"><button class="ic" data-e="${r.id}" aria-label="Ubah"><i class="fa-solid fa-pen"></i></button><button class="ic dn" data-d="${r.id}" aria-label="Hapus"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')
     :`<tr><td colspan="${d.cols.length+2}" class="kosong">Belum ada data. Klik “Tambah” untuk membuat yang pertama.</td></tr>`;
   // Pasang event klik untuk setiap tombol Ubah ([data-e]) dan Hapus ([data-d])
@@ -194,9 +231,19 @@ function form(r){
     if(c.type=='area')f=`<textarea name="${c.n}" rows="4">${esc(v)}</textarea>`;
     else if(c.type=='enum')f=`<select name="${c.n}">${c.opts.map(o=>`<option${o==v?' selected':''}>${esc(o)}</option>`).join('')}</select>`;
     else if(c.type=='fk')f=`<select name="${c.n}">${(d.fk[c.n]||[]).map(o=>`<option value="${o.id}"${o.id==v?' selected':''}>${esc(o.nama)}</option>`).join('')}</select>`;
-    else f=`<input name="${c.n}" type="${c.type=='num'?'number':'text'}"${c.type=='num'?' step="any"':''} value="${esc(v)}">`;
+    else if(isImg(c.n))f=`<input name="${c.n}" type="text" value="${esc(v)}" placeholder="Terisi otomatis setelah upload, atau tempel URL gambar" data-img><input type="file" accept="image/jpeg,image/png,image/webp" data-up style="margin-top:8px"><img class="pv" alt="Pratinjau gambar"${v?` src="${esc(v)}"`:' hidden'}><small class="up-st"></small>`;
+    else f=`<input name="${c.n}" type="${c.type=='num'?'number':isUrl(c.n)?'url':'text'}"${c.type=='num'?' step="any"':''}${isUrl(c.n)?' placeholder="https://..."':''} value="${esc(v)}">`;
     return lb+f+'</label>';
   }).join('')+'<div class="bt"><button type="button" class="btn g" id="bc">Batal</button><button class="btn">Simpan</button></div>';
+  // Pasang perilaku upload + pratinjau untuk setiap kolom gambar
+  $('#mf').querySelectorAll('[data-up]').forEach(fi=>{
+    const box=fi.closest('label'),txt=box.querySelector('[data-img]'),pv=box.querySelector('.pv'),st=box.querySelector('.up-st');
+    const setPv=()=>{const u=txt.value.trim();if(u){pv.hidden=false;pv.src=u}else pv.hidden=true};
+    pv.onerror=()=>{pv.hidden=true};txt.addEventListener('change',setPv);
+    fi.onchange=async()=>{const f0=fi.files[0];if(!f0)return;st.textContent=' Mengunggah…';
+      const d=await unggah(await kecilkan(f0));fi.value='';
+      if(d.ok){txt.value=d.path;setPv();st.textContent=' Terunggah ✓'}else{st.textContent='';toast(d.error||'Upload gagal',1)}};
+  });
   $('#md').hidden=false;$('#bc').onclick=()=>$('#md').hidden=true;
   // Proses simpan form ke api/admin.php?aksi=tambah atau aksi=ubah
   $('#mf').onsubmit=async e=>{e.preventDefault();const data={};d.cols.forEach(c=>data[c.n]=e.target.elements[c.n].value);
