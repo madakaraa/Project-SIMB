@@ -14,6 +14,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
+/* ============================================================
+   BAGIAN CSS
+   Tema: gelap (slate/charcoal) dengan aksen amber & oranye api.
+   Semua warna utama disimpan di variabel :root supaya mudah diganti.
+   ============================================================ */
 :root {
     --slate-950: #14191d;
     --slate-900: #181f25;
@@ -31,6 +36,7 @@
 }
 
 * { box-sizing: border-box; }
+/* overflow hidden: halaman full-screen, yang scroll hanya panel di dalamnya */
 html, body { height: 100%; margin: 0; overflow: hidden; }
 body {
     font: 400 13.5px/1.5 "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
@@ -80,6 +86,7 @@ body {
     color: #cbd5e1; font-weight: 600; font-size: 12px; letter-spacing: 0.07em;
     text-decoration: none; transition: color 0.25s; position: relative; padding: 4px 0;
 }
+/* garis bawah animasi saat hover / menu aktif */
 .nav-links a::after {
     content: ""; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
     background: var(--amber); transition: width 0.25s ease;
@@ -103,6 +110,7 @@ body {
     color: #fff;
 }
 
+/* Tombol merah "Lapor Bencana" di navbar */
 .btn-lapor {
     background: linear-gradient(135deg, var(--flame-dark), var(--flame));
     color: white; border: 1px solid rgba(255, 255, 255, 0.16);
@@ -117,11 +125,12 @@ body {
     box-shadow: 0 0 28px rgba(234, 88, 12, 0.55);
 }
 
-/* Map & Wind Canvas */
+/* Map & Wind Canvas: peta di bawah navbar, canvas angin ditumpuk di atas peta (z-index 3) */
 #map { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; }
+/* pointer-events none supaya klik tetap tembus ke peta */
 #wc { position: absolute; top: 64px; bottom: 0; left: 0; right: 0; z-index: 3; pointer-events: none; width: 100%; height: calc(100% - 64px); }
 
-/* Floating Glass Panel Kiri */
+/* Floating Glass Panel Kiri (panel kontrol/filter) */
 .panel {
     position: absolute; z-index: 5; top: 78px; left: 14px;
     width: 342px; max-width: calc(100% - 28px); max-height: calc(100% - 94px);
@@ -144,6 +153,7 @@ h1 {
 h1 b { color: var(--amber); font-weight: 700; }
 .sub { color: var(--text-muted); font-size: 0.76rem; margin-top: 2px; }
 
+/* <summary> (judul bagian lipat); panah dibuat lewat ikon Font Awesome di ::after */
 summary {
     font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.07em;
     color: #e2e8f0; cursor: pointer; padding: 11px 0 8px;
@@ -157,6 +167,7 @@ summary::after {
 }
 details[open] > summary::after { transform: rotate(180deg); color: var(--amber); }
 
+/* Tombol umum (pill) */
 .btns { display: flex; flex-wrap: wrap; gap: 6px; }
 button, .b {
     font: 600 0.76rem "Plus Jakarta Sans", system-ui, sans-serif;
@@ -171,6 +182,7 @@ button:hover {
     background: rgba(245, 158, 11, 0.14);
     color: #fff;
 }
+/* tombol yang sedang terpilih (misal peta dasar aktif) */
 button[aria-pressed=true] { background: var(--amber); border-color: var(--amber); color: var(--slate-950); }
 
 label {
@@ -198,6 +210,7 @@ input[type=range] {
 }
 :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
+/* Titik warna kecil untuk legenda */
 .dot {
     display: inline-block; width: 10px; height: 10px; border-radius: 50%;
     margin: 0 5px 0 8px; vertical-align: -1px;
@@ -205,7 +218,7 @@ input[type=range] {
 }
 .dot:first-child { margin-left: 0; }
 
-/* Card Data di Panel */
+/* Card Data di Panel (daftar KHG, hutan, AQI) */
 .card {
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -218,6 +231,7 @@ input[type=range] {
     transform: translateY(-1px);
 }
 .card b { display: block; color: #fff; margin-bottom: 2px; }
+/* warna status: a = aktif (oranye), m = menengah (amber), v = terverifikasi (hijau) */
 .a { color: #f97316; } .m { color: var(--amber); } .v { color: var(--emerald); }
 
 #stat {
@@ -225,6 +239,7 @@ input[type=range] {
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 12px; padding: 10px 12px; font-size: 0.81rem; line-height: 1.65;
 }
+/* kotak catatan/peringatan di bawah panel */
 #note {
     margin-top: 10px; padding: 9px 12px; border-radius: 10px;
     background: rgba(245, 158, 11, 0.14); border-left: 3px solid var(--amber);
@@ -247,7 +262,7 @@ input[type=range] {
 .ico-khg { color: #d49664; width: 15px; text-align: center; }
 .ico-aqi { color: #94a3b8; width: 15px; text-align: center; }
 
-/* Top Metric Cards */
+/* Top Metric Cards (kartu ringkasan di atas peta) */
 .cards {
     position: absolute; z-index: 4; top: 78px; left: 374px; right: 64px;
     display: flex; flex-wrap: wrap; gap: 10px; pointer-events: none;
@@ -272,7 +287,7 @@ input[type=range] {
     letter-spacing: 0.01em; color: #fff; font-weight: 700;
 }
 
-/* AQI Legend Bar */
+/* AQI Legend Bar (legenda warna kualitas udara, di bawah tengah) */
 .lgb {
     position: absolute; z-index: 4; left: 50%; bottom: 14px; transform: translateX(-50%);
     display: flex; font-size: 0.7rem; font-weight: 700; color: var(--slate-950);
@@ -282,7 +297,7 @@ input[type=range] {
 }
 .lgb span { padding: 5px 11px; white-space: nowrap; }
 
-/* Form Lapor Bencana Modal */
+/* Form Lapor Bencana Modal (default tersembunyi, dibuka lewat tombol Lapor) */
 #rp {
     position: absolute; z-index: 101; left: 50%; top: 50%; transform: translate(-50%, -50%);
     width: min(410px, calc(100% - 24px));
@@ -298,6 +313,7 @@ input[type=range] {
 .pp b { display: block; font-size: 0.95rem; margin-bottom: 5px; color: #fff; }
 .pp small { display: block; margin-top: 6px; color: var(--text-muted); }
 .cs { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+/* .aq = marker AQI (bulat), .rpm = marker laporan warga (kotak merah) */
 .aq, .rpm {
     width: 30px; height: 30px; border-radius: 50%;
     border: 2px solid #fff; display: grid; place-items: center;
@@ -308,9 +324,10 @@ input[type=range] {
     background: linear-gradient(135deg, var(--flame-dark), var(--flame));
     color: #fff; border-radius: 8px;
 }
+/* kelas "noaq" ditambahkan ke #map saat checkbox AQI dimatikan */
 .noaq .aq { display: none; }
 
-/* MapLibre Custom Slate Charcoal Theme */
+/* MapLibre Custom Slate Charcoal Theme (menimpa tampilan bawaan MapLibre agar sesuai tema gelap) */
 .maplibregl-popup-content {
     background: rgba(30, 37, 43, 0.95) !important;
     backdrop-filter: blur(14px);
@@ -351,27 +368,37 @@ input[type=range] {
 }
 
 
+/* ---- Animasi & komponen tambahan (tab, gambut, hutan) ---- */
+/* animasi panel masuk dari kiri */
 .panel{animation:pIn .7s cubic-bezier(.22,1,.36,1) both}
 @keyframes pIn{from{opacity:0;transform:translateX(-24px)}}
+/* baris 5 tab (Peta, Api, Gambut, Hutan, Udara) */
 .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:rgba(255,255,255,.05);padding:4px;border-radius:14px;margin:6px 0 10px}
 .tab{display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;border-radius:10px;padding:7px 2px;font-size:.64rem;color:var(--text-muted)}
 .tab i{font-size:14px}
 .tab.on{background:linear-gradient(135deg,var(--amber),var(--flame));color:#14191d}
+/* isi tab: hanya yang berkelas .on yang tampil */
 .pane{display:none}.pane.on{display:block;animation:fd .35s ease both}
 @keyframes fd{from{opacity:0;transform:translateY(6px)}}
 .h6{font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:12px 0 6px}
+/* chip kecil berwarna (label status / jenis gambut) */
 .chip2{color:#14191d;font-size:.62rem;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap}
 .kh{display:flex;justify-content:space-between;align-items:center;gap:8px}.kh b{display:inline;margin:0}
 .mu{display:block;color:var(--text-muted);font-size:.72rem}
+/* progress bar kedalaman gambut */
 .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.1);margin:6px 0;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;transition:width .8s}
+/* gradasi warna kedalaman gambut (dangkal -> dalam) */
 .dgrad{height:8px;border-radius:99px;background:linear-gradient(90deg,#c9a27a,#a0673c,#5b3a22);margin:6px 0 3px}
 .dl{display:flex;justify-content:space-between;font-size:.66rem;color:var(--text-muted)}
 .fact{font-size:.78rem;color:#cbd5e1;margin:7px 0;padding-left:20px;position:relative}.fact i{position:absolute;left:0;top:3px;color:var(--amber);font-size:11px}
+/* marker kawasan hutan; warna border diatur lewat variabel --c dari JS sesuai status */
 .fm{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#15803d;color:#fff;border:2.5px solid var(--c,#34d399);box-shadow:0 4px 12px rgba(0,0,0,.55);cursor:pointer;font-size:13px;transition:transform .2s}
 .fm:hover{transform:scale(1.18)}
+/* kelas "siaga": marker berkedip merah (efek radar) */
 .fm.siaga{animation:rg 1.6s infinite}
 @keyframes rg{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}100%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
 .csvb{width:100%;margin-top:10px;border-radius:10px;padding:8px}
+/* Responsif: tablet & HP */
 @media(max-width:1024px) {
     .nav-links { display: none; }
 }
@@ -390,7 +417,7 @@ input[type=range] {
 
 <!-- HEADER NAVBAR -->
 <nav class="navbar">
-    <a href="index.html" class="brand">
+    <a href="index.php" class="brand">
         <div class="brand-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
         <div>
             <div class="brand-title">PYROWATCH<span style="color:#f59e0b;">ID</span></div>
@@ -398,15 +425,12 @@ input[type=range] {
         </div>
     </a>
     <div class="nav-links">
-        <a href="index.html">MENU AWAL</a>
+        <a href="index.php">MENU AWAL</a>
         <a href="#" class="active">DASHBOARD PETA</a>
-        <a href="index.html#edukasi">EDUKASI</a>
-        <a href="index.html#penyebab">PENYEBAB &amp; DAMPAK</a>
-        <a href="index.html#mitigasi">MITIGASI</a>
-        <a href="index.html#tim">TIM KAMI</a>
     </div>
     <div class="nav-actions">
-        <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span>Menu Awal</span></a>
+        <a href="index.php" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span>Menu Awal</span></a>
+        <!-- Tombol ini membuka form lapor (#rp) dan menampilkan petunjuk di #rm -->
         <button class="btn-lapor" onclick="document.getElementById('rp').style.display='block'; document.getElementById('rm').textContent='Klik di peta untuk menandai lokasi titik awal api.';">
             <i class="fa-solid fa-bullhorn"></i> LAPOR BENCANA
         </button>
@@ -414,16 +438,20 @@ input[type=range] {
 </nav>
 
 <!-- PETA & LAYER -->
+<!-- #map = peta MapLibre, #wc = canvas animasi angin (di atas peta), #cd = kartu ringkasan di atas peta -->
 <div id="map"></div><canvas id="wc"></canvas><div class="cards" id="cd"></div>
+<!-- Legenda warna AQI (kategori sama dengan array AQC di JavaScript) -->
 <div class="lgb"><span style="background:#5fc27a">Baik</span><span style="background:#e3d655">Sedang</span><span style="background:#f0a040">Tidak sehat bagi kelompok sensitif</span><span style="background:#e8604a">Tidak sehat</span><span style="background:#a05a9c;color:#fff">Sangat tidak sehat</span><span style="background:#c23a5e;color:#fff">Berbahaya</span></div>
 
 <!-- PANEL KONTROL KIRI -->
 <div class="panel" id="pn">
     <div class="top">
         <div><h1>Filter <b>Pemantauan</b></h1><div class="sub">Kendali Layer Spasial &amp; Thermal</div></div>
+        <!-- Tombol ciutkan/buka panel (logika di JS: $("#hd").onclick) -->
         <button id="hd" aria-expanded="true"><i class="fa-solid fa-chevron-up"></i> Ciutkan</button>
     </div>
     <div id="bd">
+    <!-- Navigasi 5 tab; data-t cocok dengan data-p pada tiap section di bawah -->
     <div class="tabs" role="tablist">
         <button class="tab on" data-t="peta"><i class="fa-solid fa-map"></i>Peta</button>
         <button class="tab" data-t="api"><i class="fa-solid fa-fire"></i>Api</button>
@@ -431,12 +459,15 @@ input[type=range] {
         <button class="tab" data-t="hutan"><i class="fa-solid fa-tree"></i>Hutan</button>
         <button class="tab" data-t="udara"><i class="fa-solid fa-wind"></i>Udara</button>
     </div>
+    <!-- TAB 1: PETA (pencarian lokasi, wilayah cepat, peta dasar, checkbox layer) -->
     <section class="pane on" data-p="peta">
         <div class="search-box"><input type="text" id="loc-search" placeholder="Cari kabupaten, kota..." autocomplete="off"><button id="loc-btn" type="button" aria-label="Cari lokasi"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+        <!-- #rg diisi tombol wilayah (Kalteng, Riau, dst) oleh JS -->
         <div class="btns" id="rg"></div>
         <div class="h6">Peta Dasar</div>
         <div class="btns"><button data-bm="sat" aria-pressed="true">Satelit</button><button data-bm="dark" aria-pressed="false">Gelap</button><button data-bm="osm" aria-pressed="false">Jalan</button></div>
         <div class="h6">Layer Aktif</div>
+        <!-- ID checkbox: cF=hotspot, cH=hutan, cK=KHG, cQ=stasiun AQI, cG=gradasi AQI, cW=angin, cR=laporan warga, cA=anomali thermal, cT=true color -->
         <label><input type="checkbox" id="cF" checked> <i class="fa-solid fa-satellite-dish ico-sat"></i> Titik panas VIIRS (NASA)</label>
         <label><input type="checkbox" id="cH" checked> <i class="fa-solid fa-tree" style="color:#34d399;width:15px;text-align:center"></i> Titik kawasan hutan</label>
         <label><input type="checkbox" id="cK" checked> <i class="fa-solid fa-layer-group ico-khg"></i> Batas KHG Gambut</label>
@@ -447,17 +478,22 @@ input[type=range] {
         <label><input type="checkbox" id="cA" checked> Anomali Thermal GIBS</label>
         <label><input type="checkbox" id="cT"> Citra Asap Satelit (True Color)</label>
     </section>
+    <!-- TAB 2: API (cara pewarnaan hotspot, rentang hari, relief 3D, statistik, unduh CSV) -->
     <section class="pane" data-p="api">
         <div class="h6">Klasifikasi Titik Panas</div>
+        <!-- radio name="cm": d = lapisan (permukaan/gambut), c = penyebab, k = confidence -->
         <label><input type="radio" name="cm" value="d" checked> Deteksi 2 Lapis (Permukaan / Gambut)</label>
         <label><input type="radio" name="cm" value="c"> Prediksi Penyebab (Alam / Manusia)</label>
         <label><input type="radio" name="cm" value="k"> Tingkat Keyakinan Api (Confidence)</label>
         <div id="lg" style="margin:10px 0;font-size:12px"></div>
+        <!-- #dy = filter rentang hari data hotspot -->
         <select id="dy" aria-label="Rentang hari"><option value="1">1 hari terakhir</option><option value="2" selected>2 hari terakhir</option><option value="3">3 hari terakhir</option><option value="5">5 hari terakhir</option></select>
+        <!-- #ex = slider tingkat exaggeration relief 3D -->
         <label style="margin-top:10px;justify-content:space-between"><span>Relief 3D Pegunungan</span> <input type="range" id="ex" min="1" max="4" step=".25" value="1.5" style="width:120px"></label>
         <div class="h6">Statistik</div><div id="stat">Memuat data FIRMS...</div>
         <button id="csv" class="csvb"><i class="fa-solid fa-download"></i> Unduh hotspot (CSV)</button>
     </section>
+    <!-- TAB 3: GAMBUT (legenda kedalaman, status verifikasi padam per KHG, info edukasi) -->
     <section class="pane" data-p="gambut">
         <div class="h6">Kedalaman Gambut</div>
         <div class="dgrad"></div><div class="dl"><span>Dangkal &lt;1 m</span><span>Sedang 1–3 m</span><span>Dalam ≥3 m</span></div>
@@ -468,11 +504,14 @@ input[type=range] {
         <div class="fact"><i class="fa-solid fa-smog"></i>Api gambut membara di bawah tanah tanpa lidah api, sulit dideteksi, dan menghasilkan asap pekat berhari-hari.</div>
         <small class="mu">Batas &amp; kedalaman KHG bawaan adalah perkiraan. Isi <code>CONFIG.KHG_URL</code> dengan data resmi KLHK untuk akurasi. Estimasi karbon memakai asumsi ±55 kgC/m³.</small>
     </section>
+    <!-- TAB 4: HUTAN (daftar kawasan hutan + status hotspot di sekitarnya) -->
     <section class="pane" data-p="hutan">
         <div class="h6">Kawasan Hutan Dipantau</div><div id="hs" class="mu" style="margin-bottom:6px"></div><div id="fl"></div>
         <small class="mu">Titik adalah pusat perkiraan tiap kawasan, bukan batas resmi. Status dihitung dari hotspot dalam radius 30 km pada rentang hari terpilih.</small>
     </section>
+    <!-- TAB 5: UDARA (daftar 8 kota dengan AQI terburuk, diisi JS) -->
     <section class="pane" data-p="udara"><div class="h6">Kualitas Udara Ekstrem (AQI)</div><div id="aql"></div></section>
+        <!-- Kotak peringatan (misal: database tidak terhubung), diatur lewat fungsi note() -->
         <div id="note" hidden></div>
     </div>
 </div>
@@ -485,6 +524,7 @@ input[type=range] {
     </div>
     <p style="margin:10px 0;color:#fbbf24;font-size:.82rem; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1);">Nyawa/aset terancam? Segera telepon <a href="tel:112" style="color:white; font-weight:bold; background:#dc2626; padding:2px 8px; border-radius:999px; text-decoration:none; margin-left:4px;">112</a>.</p>
     
+    <!-- #rj = jenis laporan (opsinya bisa diganti dari database lewat loadDB) -->
     <label for="rj">Klasifikasi yang Terlihat</label>
     <select id="rj">
         <option>Api terbuka di permukaan lahan</option>
@@ -493,6 +533,7 @@ input[type=range] {
         <option>Lainnya</option>
     </select>
     
+    <!-- #rl = koordinat (diisi klik peta atau tombol GPS #gp) -->
     <label for="rl">Titik Koordinat (Klik Peta / Auto GPS)</label>
     <div style="display:flex;gap:8px">
         <input id="rl" placeholder="-2.54, 112.95 (Pilih dari peta)">
@@ -505,22 +546,36 @@ input[type=range] {
     <div class="btns" style="margin-top:14px">
         <button id="rs" style="width:100%; background:linear-gradient(135deg,#dc2626,#ea580c); border:none; font-size:13px; padding:11px; border-radius:999px; box-shadow:0 8px 20px rgba(220,38,38,0.35);"><i class="fa-solid fa-paper-plane"></i> Kirim Laporan ke Pusat</button>
     </div>
+    <!-- #rm = pesan status pengiriman laporan -->
     <div id="rm" style="margin-top:10px;font-size:.82rem; color:#34d399;" aria-live="polite"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
-/* ===== PENGATURAN API ===== */
-const CONFIG={
- FIRMS_KEY:"cabe647e690d9d3ce78cb0440a55740f", 
- SOURCE:"VIIRS_SNPP_NRT",BBOX:[95,-11,141,6],
- FRP_SURFACE:8,       
- KHG_URL:"api/khg.php",          
- REPORT_ENDPOINT:"api/laporan.php"}; 
+/* ============================================================
+   BAGIAN JAVASCRIPT
+   Alur umum: inisialisasi peta -> muat database -> muat KHG gambut
+   -> muat hotspot NASA FIRMS -> muat AQI -> muat angin.
+   (lihat map.on("load") di paling bawah)
+   ============================================================ */
 
+/* ===== PENGATURAN API ===== */
+// Semua konfigurasi di satu tempat: kunci API NASA, sumber satelit, area (bbox), dsb.
+const CONFIG={
+ FIRMS_KEY:"cabe647e690d9d3ce78cb0440a55740f", // kunci API NASA FIRMS
+ SOURCE:"VIIRS_SNPP_NRT",BBOX:[95,-11,141,6],   // satelit VIIRS (near real time); BBOX = [barat, selatan, timur, utara] mencakup Indonesia
+ FRP_SURFACE:8,       // ambang FRP (MW): di bawah ini + di dalam KHG dianggap "bara gambut", di atasnya "api permukaan"
+ KHG_URL:"api/khg.php",          // endpoint data KHG (batas gambut) dari server
+ REPORT_ENDPOINT:"api/laporan.php"}; // endpoint untuk kirim laporan warga
+
+// $ = singkatan querySelector, esc = escape HTML agar aman dari injeksi (XSS) saat menampilkan teks
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// Daftar wilayah cepat (tombol terbang ke lokasi): c=pusat [lon,lat], z=zoom, p=pitch (kemiringan), b=bearing (arah putar)
 let REGIONS={"Indonesia":{c:[113,-1.5],z:4.6,p:0,b:0},"Kalteng":{c:[113.6,-2.6],z:8.2,p:60,b:20},"Riau":{c:[102,0.6],z:8.3,p:60,b:-20},"Jambi":{c:[103.9,-1.6],z:8.3,p:60,b:10},"Sumsel":{c:[105.4,-3.3],z:8.2,p:60,b:-10},"Kalbar":{c:[109.5,-0.2],z:8.2,p:60,b:0}};
 
+// Data KHG (Kesatuan Hidrologis Gambut) bawaan berupa poligon perkiraan.
+// Format tiap baris: [nama, kedalaman cm, provinsi, daftar koordinat [lon,lat]]
+// Lalu diubah (.map) menjadi GeoJSON FeatureCollection; titik awal diulang di akhir untuk menutup poligon.
 const KHG0={type:"FeatureCollection",features:[
 ["KHG Sungai Sebangau",300,"Kalimantan Tengah",[[113,-2.2],[113.9,-2.3],[114,-3],[113.4,-3.3],[112.9,-2.9]]],
 ["KHG Kampar–Siak",400,"Riau",[[101.6,.2],[102.4,.2],[102.5,.9],[101.9,1.1],[101.5,.7]]],
@@ -528,13 +583,18 @@ const KHG0={type:"FeatureCollection",features:[
 ["KHG Tanjung Jabung",250,"Jambi",[[103.7,-1.2],[104.3,-1.2],[104.4,-1.8],[103.9,-2],[103.6,-1.6]]],
 ["KHG Ogan Komering Ilir",200,"Sumatra Selatan",[[105,-2.8],[105.9,-2.9],[106.1,-3.5],[105.4,-3.7],[104.9,-3.3]]]
 ].map(z=>({type:"Feature",properties:{nama:z[0],kedalaman_cm:z[1],prov:z[2]},geometry:{type:"Polygon",coordinates:[[...z[3],z[3][0]]]}}))};
+// Daftar kota untuk stasiun kualitas udara: [nama, lat, lon]
 let CITIES=[["Banda Aceh",5.55,95.32],["Medan",3.59,98.67],["Padang",-.95,100.35],["Pekanbaru",.51,101.45],["Dumai",1.67,101.45],["Batam",1.05,104.03],["Jambi",-1.61,103.61],["Bengkulu",-3.8,102.26],["Palembang",-2.99,104.76],["Pangkal Pinang",-2.13,106.11],["Bandar Lampung",-5.43,105.26],["Jakarta",-6.21,106.85],["Bandung",-6.91,107.61],["Semarang",-6.97,110.42],["Yogyakarta",-7.8,110.36],["Surabaya",-7.25,112.75],["Denpasar",-8.65,115.22],["Mataram",-8.58,116.12],["Kupang",-10.18,123.58],["Pontianak",-.03,109.33],["Singkawang",.91,108.98],["Sintang",.08,111.49],["Pangkalan Bun",-2.68,111.62],["Sampit",-2.54,112.95],["Palangka Raya",-2.21,113.92],["Muara Teweh",-.95,114.89],["Banjarmasin",-3.32,114.59],["Balikpapan",-1.24,116.83],["Samarinda",-.5,117.15],["Tarakan",3.3,117.63],["Manado",1.47,124.84],["Gorontalo",.54,123.06],["Palu",-.9,119.87],["Makassar",-5.15,119.43],["Kendari",-3.97,122.51],["Ternate",.79,127.38],["Ambon",-3.7,128.18],["Sorong",-.88,131.26],["Jayapura",-2.53,140.72],["Merauke",-8.5,140.4]];
+// Kategori AQI: [batas atas nilai, label, warna]. Dicari dengan aqc(nilai).
 let AQC=[[50,"Baik","#5fc27a"],[100,"Sedang","#e3d655"],[150,"Tidak sehat bagi kelompok sensitif","#f0a040"],[200,"Tidak sehat","#e8604a"],[300,"Sangat tidak sehat","#a05a9c"],[1e9,"Berbahaya","#c23a5e"]];
 const aqc=v=>AQC.find(c=>v<=c[0]);
+// gibsD = tanggal kemarin (format YYYY-MM-DD) untuk tile citra NASA GIBS; gibs() membentuk URL tile-nya
 const gibsD=new Date(Date.now()-864e5).toISOString().slice(0,10);
 const gibs=(l,m,e)=>`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${l}/default/${gibsD}/${m}/{z}/{y}/{x}.${e}`;
 
 /* INIT MAP */
+// Membuat peta MapLibre. Di dalam style didefinisikan semua sumber (source) dan layer dasar:
+// dark/osm/sat = peta dasar, dem = data elevasi untuk relief 3D, tc = citra true color NASA, ta = anomali thermal NASA.
 const map=new maplibregl.Map({container:"map",center:[113,-1.5],zoom:4.6,pitch:0,bearing:0,maxPitch:80,
  style:{version:8,sources:{
   dark:{type:"raster",tiles:["https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png","https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"],tileSize:256,attribution:"© OpenStreetMap © CARTO"},
@@ -543,30 +603,41 @@ const map=new maplibregl.Map({container:"map",center:[113,-1.5],zoom:4.6,pitch:0
   dem:{type:"raster-dem",tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],tileSize:256,encoding:"terrarium",maxzoom:14,attribution:"Relief: AWS"},
   tc:{type:"raster",tiles:[gibs("VIIRS_SNPP_CorrectedReflectance_TrueColor","GoogleMapsCompatible_Level9","jpg")],tileSize:256,maxzoom:9},
   ta:{type:"raster",tiles:[gibs("VIIRS_SNPP_Thermal_Anomalies_375m_All","GoogleMapsCompatible_Level8","png")],tileSize:256,maxzoom:8}},
+  // layer awal: satelit tampil, dark/osm/tc disembunyikan, anomali thermal (ta) tampil
   layers:[{id:"sat",type:"raster",source:"sat"},{id:"dark",type:"raster",source:"dark",layout:{visibility:"none"}},{id:"osm",type:"raster",source:"osm",layout:{visibility:"none"}},{id:"tc",type:"raster",source:"tc",layout:{visibility:"none"}},{id:"ta",type:"raster",source:"ta"}],
   terrain:{source:"dem",exaggeration:1.5}}});
+// kontrol navigasi (zoom/putar) dan skala jarak
 map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),"top-right");
 map.addControl(new maplibregl.ScaleControl({unit:"metric"}));
 
+// note(t): tampilkan pesan di kotak #note (kosong = sembunyikan)
 const note=t=>{const n=$("#note");n.hidden=!t;n.textContent=t||""};
+// vis(id,on): tampil/sembunyikan layer peta berdasarkan id
 const vis=(id,on)=>map.getLayer(id)&&map.setLayoutProperty(id,"visibility",on?"visible":"none");
+// shift(d,n): geser tanggal "YYYY-MM-DD" sebanyak n hari
 const shift=(d,n)=>new Date(Date.parse(d+"T00:00:00Z")+n*864e5).toISOString().slice(0,10);
+// Variabel state global: rows=data hotspot, maxD=tanggal terbaru data, khg=data gambut, aqm/rpm=marker, rep=laporan warga,
+// cause=penyebab kebakaran yang dipilih user (disimpan di localStorage)
 let rows=[],maxD="",khg=KHG0,aqm=[],rpm=[],rep=[],cause=JSON.parse(localStorage.pw_cause||"{}");
 
 /* UI PANEL & SEARCH */
+// Buat tombol wilayah cepat dari REGIONS; klik = kamera terbang ke wilayah itu
 Object.keys(REGIONS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>map.flyTo({center:REGIONS[n].c,zoom:REGIONS[n].z,pitch:REGIONS[n].p,bearing:REGIONS[n].b,duration:2200});$("#rg").appendChild(b)});
+// Tombol ciutkan/buka panel kontrol
 $("#hd").onclick=e=>{const btn=e.currentTarget,o=$("#bd").hidden;$("#bd").hidden=!o;btn.innerHTML=o?'<i class="fa-solid fa-chevron-up"></i> Ciutkan':'<i class="fa-solid fa-chevron-down"></i> Buka';btn.setAttribute("aria-expanded",o)};
 
 /* LOGIKA SEARCH LOKASI */
+// Cari nama tempat lewat Nominatim (OpenStreetMap), dibatasi Indonesia, lalu peta zoom ke hasilnya
 $("#loc-btn").onclick = async () => {
     const q = $("#loc-search").value.trim();
     if (!q) return;
-    $("#loc-btn").innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
+    $("#loc-btn").innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; // ikon loading
     try {
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=id&limit=1&q=${encodeURIComponent(q)}`);
         const data = await res.json();
         if (data && data.length > 0) {
             const loc = data[0];
+            // jika ada boundingbox, pas-kan peta ke kotak batas; jika tidak, terbang ke titik pusat
             if (loc.boundingbox) {
                 map.fitBounds([
                     [parseFloat(loc.boundingbox[2]), parseFloat(loc.boundingbox[0])], 
@@ -581,92 +652,132 @@ $("#loc-btn").onclick = async () => {
     } catch (e) {
         alert("Gagal mencari lokasi karena masalah jaringan.");
     }
-    $("#loc-btn").innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+    $("#loc-btn").innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>'; // kembalikan ikon search
 };
+// tekan Enter di kolom pencarian = klik tombol cari
 $("#loc-search").addEventListener("keypress", (e) => { if (e.key === "Enter") $("#loc-btn").click(); });
 
 /* TOGGLE LAYER */
+// Setiap checkbox di tab Peta menampilkan/menyembunyikan layer yang sesuai
 $("#cA").onchange=e=>vis("ta",e.target.checked);$("#cT").onchange=e=>vis("tc",e.target.checked);
-$("#cF").onchange=e=>{vis("fg",e.target.checked);vis("fp",e.target.checked)};
-$("#cK").onchange=e=>{vis("khf",e.target.checked);vis("khl",e.target.checked)};
-$("#cQ").onchange=e=>$("#map").classList.toggle("noaq",!e.target.checked);
-$("#cG").onchange=e=>vis("aqg",e.target.checked);
-$("#cW").onchange=e=>{wOn=e.target.checked;if(!wOn&&wctx)wctx.clearRect(0,0,9999,9999)};
-$("#cR").onchange=e=>rpm.forEach(m=>m.getElement().style.display=e.target.checked?"":"none");
-$("#ex").oninput=e=>map.setTerrain({source:"dem",exaggeration:+e.target.value});
-$("#dy").onchange=()=>render();
-document.querySelectorAll("[name=cm]").forEach(r=>r.onchange=setColor);
+$("#cF").onchange=e=>{vis("fg",e.target.checked);vis("fp",e.target.checked)};   // hotspot: fg=glow, fp=titik
+$("#cK").onchange=e=>{vis("khf",e.target.checked);vis("khl",e.target.checked)}; // KHG: khf=isi, khl=garis tepi
+$("#cQ").onchange=e=>$("#map").classList.toggle("noaq",!e.target.checked);       // marker AQI disembunyikan via CSS
+$("#cG").onchange=e=>vis("aqg",e.target.checked);                                 // gradasi polusi
+$("#cW").onchange=e=>{wOn=e.target.checked;if(!wOn&&wctx)wctx.clearRect(0,0,9999,9999)}; // animasi angin
+$("#cR").onchange=e=>rpm.forEach(m=>m.getElement().style.display=e.target.checked?"":"none"); // laporan warga
+$("#ex").oninput=e=>map.setTerrain({source:"dem",exaggeration:+e.target.value}); // slider relief 3D
+$("#dy").onchange=()=>render();                                                   // ganti rentang hari -> gambar ulang hotspot
+document.querySelectorAll("[name=cm]").forEach(r=>r.onchange=setColor);          // ganti mode warna hotspot
 
 /* GEOMETRI & KHG */
+// inRing: cek apakah titik p berada di dalam satu ring poligon (algoritma ray casting)
 function inRing(p,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){if((r[i][1]>p[1])!=(r[j][1]>p[1])&&p[0]<(r[j][0]-r[i][0])*(p[1]-r[i][1])/(r[j][1]-r[i][1])+r[i][0])c=!c}return c}
+// inGeom: sama seperti inRing tetapi mendukung Polygon dan MultiPolygon
 function inGeom(p,g){const P=g.type=="Polygon"?[g.coordinates]:g.coordinates;return P.some(q=>inRing(p,q[0]))}
+// zn = ambil nama KHG, zd = ambil kedalaman (cm); mendukung beberapa nama properti (data bawaan vs data resmi)
 const zn=f=>f.properties.nama||f.properties.NAMA_KHG||f.properties.name||"KHG";
 const zd=f=>f.properties.kedalaman_cm||f.properties.kedalaman||0;
+// center: hitung titik tengah (bounding box) sebuah poligon KHG
 function center(f){const g=f.geometry,r=(g.type=="Polygon"?g.coordinates[0]:g.coordinates[0][0]),x=r.map(p=>p[0]),y=r.map(p=>p[1]);return[(Math.min(...x)+Math.max(...x))/2,(Math.min(...y)+Math.max(...y))/2]}
 
+// loadKHG: ambil data KHG dari server (KHG_URL); jika gagal pakai data bawaan KHG0.
+// Lalu tambahkan layer peta: isi berwarna sesuai kedalaman (khf) + garis tepi putus-putus (khl)
 async function loadKHG(){
  if(CONFIG.KHG_URL){try{const j=await (await fetch(CONFIG.KHG_URL)).json();if(!j.features||!j.features.length)throw 0;khg=j}catch(e){note("KHG gagal dimuat, memakai perkiraan bawaan.")}}
  map.addSource("khg",{type:"geojson",data:khg});
  map.addLayer({id:"khf",type:"fill",source:"khg",paint:{"fill-color":["interpolate",["linear"],["to-number",["coalesce",["get","kedalaman_cm"],["get","kedalaman"],200]],100,"#c9a27a",250,"#a0673c",400,"#5b3a22"],"fill-opacity":.42}});
  map.addLayer({id:"khl",type:"line",source:"khg",paint:{"line-color":"#f0b07a","line-width":1.6,"line-dasharray":[3,2]}});
+ // klik area KHG -> popup info gambut (diabaikan jika yang diklik adalah titik hotspot)
  map.on("click","khf",e=>{if(map.queryRenderedFeatures(e.point,{layers:["fp"].filter(l=>map.getLayer(l))}).length)return;const f=e.features[0],z=khg.features.find(x=>zn(x)==f.properties.nama)||f;
   new maplibregl.Popup({maxWidth:"300px"}).setLngLat(e.lngLat).setHTML(peatHTML(z)).addTo(map);showPeat(z)});
  renderKV()}
 
 /* DATA TITIK PANAS (NASA FIRMS) */
+// E = ekspresi warna MapLibre untuk 3 mode: k=confidence, d=lapisan (permukaan/gambut), c=penyebab
 const E={k:["match",["get","conf"],"h","#ff3b1f","n","#ff9a2e","#ffd23f"],d:["match",["get","ly"],"p","#c06bff","#ff4a1c"],c:["match",["get","cause"],"alam","#2fb8d6","manusia","#ff4a1c","#ffd23f"]};
+// LG = isi legenda warna untuk tiap mode
 const LG={d:[["#ff4a1c","Api Permukaan"],["#c06bff","Indikasi Bara Gambut"]],c:[["#2fb8d6","Faktor Alam"],["#ff4a1c","Ulah Manusia"],["#ffd23f","Dlm Investigasi"]],k:[["#ff3b1f","Keyakinan Tinggi"],["#ff9a2e","Sedang"],["#ffd23f","Rendah"]]};
+// setColor: terapkan mode warna yang dipilih ke layer hotspot dan perbarui legenda
 function setColor(){const m=document.querySelector("[name=cm]:checked").value;
  ["fg","fp"].forEach(id=>map.getLayer(id)&&map.setPaintProperty(id,"circle-color",E[m]));
  $("#lg").innerHTML=LG[m].map(l=>`<span class="dot" style="background:${l[0]}"></span>${l[1]}`).join(" ")}
+// parse: ubah teks CSV dari FIRMS menjadi array objek (baris pertama = nama kolom)
 const parse=t=>{const L=t.trim().split("\n"),h=L.shift().split(",");return L.map(l=>{const c=l.split(","),o={};h.forEach((k,i)=>o[k]=c[i]);return o})};
+// CN = label penyebab untuk ditampilkan
 const CN={alam:"Faktor alam",manusia:"Ulah manusia",invest:"Dalam investigasi"};
 
+// loadFires: ambil hotspot 5 hari terakhir dari NASA FIRMS, cek tiap titik masuk KHG mana,
+// dan klasifikasikan: dalam KHG + FRP rendah = "p" (bara gambut), selain itu "s" (api permukaan).
+// Jika FIRMS gagal, pakai data cadangan dari database (dbFallback).
 async function loadFires(){
  if(CONFIG.FIRMS_KEY.startsWith("ISI_")){$("#stat").textContent="API Key belum diatur.";renderKV();return}
  try{const [w,s,e,n]=CONFIG.BBOX,res=await fetch(`https://firms.modaps.eosdis.nasa.gov/api/area/csv/${CONFIG.FIRMS_KEY}/${CONFIG.SOURCE}/${w},${s},${e},${n}/5`),txt=await res.text();
   if(!res.ok||!txt.startsWith("latitude"))throw new Error(txt.slice(0,100));
   rows=parse(txt).map(r=>{const lon=+r.longitude,lat=+r.latitude,frp=+r.frp,z=khg.features.find(f=>inGeom([lon,lat],f.geometry));
    return{lon,lat,frp,conf:r.confidence,d:r.acq_date,t:r.acq_time,sat:r.satellite,tb:+r.bright_ti4,khg:z?zn(z):"",dp:z?zd(z):0,ly:z&&frp<CONFIG.FRP_SURFACE?"p":"s",key:lon.toFixed(3)+","+lat.toFixed(3)}});
-  maxD=rows.reduce((a,r)=>r.d>a?r.d:a,"");
-  saveHotspots()
+  maxD=rows.reduce((a,r)=>r.d>a?r.d:a,"");  // tanggal terbaru di data
+  saveHotspots()                            // simpan ke database server
  }catch(err){return dbFallback()}
  mountFires()}
+// mountFires: buat source + 2 layer hotspot (fg = lingkaran glow buram, fp = titik utama), pasang event klik/hover
 function mountFires(){try{
   map.addSource("fires",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
-  const rad=[["interpolate",["linear"],["zoom"],4,5,10,18],["interpolate",["linear"],["zoom"],4,2.5,10,7]];
+  const rad=[["interpolate",["linear"],["zoom"],4,5,10,18],["interpolate",["linear"],["zoom"],4,2.5,10,7]]; // radius membesar saat zoom
   map.addLayer({id:"fg",type:"circle",source:"fires",paint:{"circle-color":E.d,"circle-radius":rad[0],"circle-blur":1,"circle-opacity":.55}});
   map.addLayer({id:"fp",type:"circle",source:"fires",paint:{"circle-color":E.d,"circle-radius":rad[1],"circle-stroke-color":"#fff","circle-stroke-width":1}});
   map.on("click","fp",popup);map.on("mouseenter","fp",()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave","fp",()=>map.getCanvas().style.cursor="");
   setColor();render();renderKV()
  }catch(err){$("#stat").textContent="Gagal memuat API FIRMS NASA.";}}
  
+// render: filter hotspot sesuai rentang hari (#dy), kirim ke peta, lalu perbarui statistik, kartu ringkasan, dan status hutan
 function render(){if(!rows.length)return;const cut=shift(maxD,-(+$("#dy").value-1));
  const f=rows.filter(r=>r.d>=cut).map(r=>({type:"Feature",geometry:{type:"Point",coordinates:[r.lon,r.lat]},properties:{conf:r.conf,frp:r.frp,d:r.d,t:r.t,sat:r.sat,tb:r.tb,ly:r.ly,khg:r.khg,dp:r.dp,key:r.key,cause:cause[r.key]||"invest"}}));
  map.getSource("fires").setData({type:"FeatureCollection",features:f});
+ // c(k) = jumlah hotspot dengan penyebab k; p = jumlah indikasi bara gambut
  const c=k=>f.filter(x=>x.properties.cause==k).length,p=f.filter(x=>x.properties.ly=="p").length;
  $("#stat").innerHTML=`<b>${f.length.toLocaleString("id-ID")}</b> hotspot (hingga ${maxD})<br><span class="dot" style="background:#ff4a1c"></span>Api Permukaan: ${f.length-p} <br><span class="dot" style="background:#c06bff"></span>Bara Gambut Bawah Tanah: ${p}<br>Penyebab: Alam (${c("alam")}), Manusia (${c("manusia")})`;cards(f);renderHutan()}
 
+// popup: tampilkan detail satu hotspot saat diklik (waktu dikonversi ke WIB) + tombol untuk menandai penyebab
+// (penyebab disimpan di localStorage dan dikirim ke server api/hotspot.php?aksi=penyebab)
 function popup(e){const p=e.features[0].properties,h=p.t.padStart(4,"0"),wib=new Date(`${p.d}T${h.slice(0,2)}:${h.slice(2)}:00Z`).toLocaleString("id-ID",{timeZone:"Asia/Jakarta",dateStyle:"medium",timeStyle:"short"});
  const pop=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="pp"><b><i class="fa-solid fa-fire" style="color:#f59e0b"></i> Titik Panas (${p.conf})</b>${wib} WIB, ${p.sat}<br>Klasifikasi: <b style="display:inline; color:${p.ly=="p"?'#c06bff':'#ff4a1c'}">${p.ly=="p"?"Bara Tanah Gambut":"Api Permukaan"}</b><br>${p.khg?`${esc(p.khg)}, Kedalaman ±${p.dp} cm<br>`:"Di luar kawasan gambut<br>"}Suhu ${p.tb} K, Emisi FRP ${p.frp} MW<br>Penyebab Terekam: <b style="display:inline">${CN[p.cause]}</b><div class="cs"><button data-c="alam">Faktor Alam</button><button data-c="manusia">Ulah Manusia</button><button data-c="invest">Investigasi</button></div></div>`).addTo(map);
  pop.getElement().querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cause[p.key]=b.dataset.c;localStorage.pw_cause=JSON.stringify(cause);fetch("api/hotspot.php?aksi=penyebab",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:p.key,penyebab:b.dataset.c})}).catch(()=>{});render();pop.remove()})}
 
+// kmx: jarak antar dua titik [lon,lat] dalam km (rumus Haversine, 12742 = diameter bumi dalam km)
 const kmx=(a,b)=>{const r=Math.PI/180,dl=(b[0]-a[0])*r,dp=(b[1]-a[1])*r,x=Math.sin(dp/2)**2+Math.cos(a[1]*r)*Math.cos(b[1]*r)*Math.sin(dl/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+// areaHa: hitung luas poligon (hektar) dengan rumus shoelace setelah konversi derajat ke km
 function areaHa(f){const g=f.geometry,r=g.type=="Polygon"?g.coordinates[0]:g.coordinates[0][0],c=Math.cos(r[0][1]*Math.PI/180);let s=0;for(let i=0;i<r.length-1;i++)s+=r[i][0]*111.32*c*r[i+1][1]*110.57-r[i+1][0]*111.32*c*r[i][1]*110.57;return Math.abs(s)/2*100}
+// peat: turunkan info gambut dari satu KHG: kedalaman, luas, kategori (dalam/sedang/dangkal), warna, keterangan,
+// dan estimasi karbon (Mt C) = luas x kedalaman x 550 (asumsi ±55 kgC/m³)
 function peat(f){const d=zd(f),a=f.properties.luas_ha||Math.round(areaHa(f)),k=d>=300?["Gambut Dalam","#5b3a22","Fungsi lindung (≥3 m), wajib dijaga"]:d>=100?["Gambut Sedang","#a0673c","Rawan kering bila dikanalisasi"]:["Gambut Dangkal","#c9a27a","Mudah terbakar saat kemarau"];return{d,a,k:k[0],col:k[1],ket:k[2],c:a*(d/100)*550/1e6}}
+// khgStats: statistik hotspot per KHG -> n = jumlah hotspot terbaru, s = masih ada api permukaan, b = ada hotspot dalam 3 hari terakhir
 function khgStats(z){if(!rows.length)return{n:0,s:false,b:false};const R=rows.filter(r=>r.khg==zn(z)),c1=shift(maxD,-1);return{n:R.filter(r=>r.d>=c1).length,s:R.some(r=>r.ly=="s"&&r.d>=c1),b:R.some(r=>r.d>=shift(maxD,-3))}}
+// peatHTML: isi popup saat area KHG diklik
 function peatHTML(z){const p=peat(z),S=khgStats(z);return`<div class="pp"><b><i class="fa-solid fa-layer-group" style="color:#d49664"></i> ${esc(zn(z))}</b><span class="chip2" style="background:${p.col}">${p.k}</span><br>${esc(z.properties.prov||"")}<br>Kedalaman ±${p.d} cm · Luas ±${p.a.toLocaleString("id-ID")} ha<br>${p.ket}<br>Hotspot 2 hari: <b style="display:inline">${rows.length?S.n:"–"}</b><small>Estimasi karbon tersimpan ±${p.c.toFixed(0)} Mt C (kasar)</small></div>`}
+// setTab: pindah tab panel kiri
 function setTab(t){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t==t));document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("on",p.dataset.p==t))}
+// showPeat: buka tab Gambut, gulir ke kartu KHG terkait dan beri sorotan border sebentar
 function showPeat(z){setTab("gambut");const c=document.querySelector(`[data-z="${khg.features.indexOf(z)}"]`);if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.style.borderColor="#f59e0b";setTimeout(()=>c.style.borderColor="",1800)}}
+// renderKV: bangun daftar kartu "Verifikasi Padam per KHG".
+// Logika status: ada api permukaan 1 hari terakhir = AKTIF; ada hotspot dalam 3 hari tapi bukan permukaan = bara gambut belum padam;
+// tidak ada hotspot 3 hari = terverifikasi padam.
 function renderKV(){const el=$("#kv");el.innerHTML=khg.features.map((z,i)=>{const p=peat(z),S=khgStats(z),
  v=!rows.length?["","Sedang sinkronisasi data"]:S.s?["a","Api permukaan MASIH AKTIF"]:S.b?["m","Permukaan padam, bara gambut BELUM PADAM"]:["v","Terverifikasi padam (3 hari)"];
  return`<div class="card" data-z="${i}"><div class="kh"><b>${esc(zn(z))}</b><span class="chip2" style="background:${p.col}">${p.k}</span></div><small class="mu">${esc(z.properties.prov||"")} · ±${p.a.toLocaleString("id-ID")} ha</small><div class="bar"><i style="width:${Math.min(100,p.d/5)}%;background:${p.col}"></i></div><small class="mu">Kedalaman ±${p.d} cm · ±${p.c.toFixed(0)} Mt C</small>${rows.length?`<div>Hotspot 2 hari: <b style="display:inline">${S.n}</b></div>`:""}<b class="${v[0]}">${v[1]}</b></div>`}).join("");
+ // klik kartu = kamera terbang ke KHG tersebut
  el.querySelectorAll("[data-z]").forEach(c=>c.onclick=()=>map.flyTo({center:center(khg.features[+c.dataset.z]),zoom:8.6,pitch:60,duration:2000}))}
 
 /* AQI & CUACA */
+// AQ = data AQI semua kota, worst = kota terburuk, mk = marker AQI aktif, WG = grid data angin, wp = partikel angin,
+// wctx = konteks canvas angin, wOn = status animasi angin hidup/mati
 let AQ=[],worst=null,mk={},lastF=null,WG=[],wp=[],wctx=null,wOn=true;
+// AST = titik warna (nilai AQI -> RGB) untuk membuat gradasi polusi halus
 const AST=[[0,[95,194,122]],[50,[227,214,85]],[100,[240,160,64]],[150,[232,96,74]],[200,[160,90,156]],[300,[194,58,94]],[400,[120,30,60]]];
+// aqrgb: interpolasi warna RGB untuk nilai AQI tertentu
 function aqrgb(v){let i=0;while(i<AST.length-2&&v>AST[i+1][0])i++;const a=AST[i],b=AST[i+1],k=Math.max(0,Math.min(1,(v-a[0])/(b[0]-a[0])));return a[1].map((x,j)=>x+(b[1][j]-x)*k)}
+// gradient: gambar peta gradasi polusi ke canvas. Tiap piksel = rata-rata AQI semua kota dengan bobot 1/jarak^4 (IDW),
+// transparansi makin pudar jika jauh dari stasiun. Hasilnya dipasang sebagai layer gambar (image source) di atas peta.
 function gradient(){const W=260,[w,s,e,n]=CONFIG.BBOX,mer=l=>Math.log(Math.tan(Math.PI/4+l*Math.PI/360)),yN=mer(n),yS=mer(s),H=Math.round(W*(yN-yS)/((e-w)*Math.PI/180)),c=document.createElement("canvas");c.width=W;c.height=H;
  const g=c.getContext("2d"),im=g.createImageData(W,H);
  for(let y=0;y<H;y++){const lat=Math.atan(Math.sinh(yN+(yS-yN)*y/H))*180/Math.PI;for(let x=0;x<W;x++){const lon=w+(e-w)*x/W;let sw=0,sv=0,md=1e9;
@@ -674,30 +785,43 @@ function gradient(){const W=260,[w,s,e,n]=CONFIG.BBOX,mer=l=>Math.log(Math.tan(M
   const col=aqrgb(sv/sw),k=(y*W+x)*4;im.data[k]=col[0];im.data[k+1]=col[1];im.data[k+2]=col[2];im.data[k+3]=Math.max(0,Math.min(1,1.3-Math.sqrt(md)/5))*190}}
  g.putImageData(im,0,0);map.addSource("aqi",{type:"image",url:c.toDataURL(),coordinates:[[w,n],[e,n],[e,s],[w,s]]});
  map.addLayer({id:"aqg",type:"raster",source:"aqi",paint:{"raster-opacity":.8,"raster-resampling":"linear"}},map.getLayer("khf")?"khf":undefined);vis("aqg",$("#cG").checked)}
+// aqMk: buat marker AQI (bulat berwarna + angka). Jika cluster (gabungan beberapa stasiun) tampilkan rata-rata dan klik = zoom masuk;
+// jika stasiun tunggal klik = popup detail (AQI & PM2.5)
 function aqMk(f){const p=f.properties,cl=p.cluster,v=cl?Math.round(p.sum/p.point_count):p.aqi,c=aqc(v),el=document.createElement("div");
  el.className="aq";el.style.background=c[2];el.textContent=v;el.title=(cl?p.point_count+" stasiun, rata-rata ":p.name+": ")+c[1];if(cl)el.style.width=el.style.height="38px";
  el.onclick=ev=>{ev.stopPropagation();if(cl)map.getSource("aqs").getClusterExpansionZoom(p.cluster_id).then(z=>map.easeTo({center:f.geometry.coordinates,zoom:z+.5}));
   else new maplibregl.Popup().setLngLat(f.geometry.coordinates).setHTML(`<div class="pp"><b>${esc(p.name)}</b>AQI ${v}: ${c[1]}<br>Kadar PM2.5 ${p.pm} µg/m³</div>`).addTo(map)};
  return new maplibregl.Marker({element:el}).setLngLat(f.geometry.coordinates)}
+// aqUpd: sinkronkan marker AQI dengan fitur yang tampil di peta (tambah yang baru, hapus yang sudah tidak terlihat) saat peta digeser/zoom
 function aqUpd(){const seen={};map.querySourceFeatures("aqs").forEach(f=>{const p=f.properties,id=p.cluster?"c"+p.cluster_id:"s"+p.name;if(seen[id])return;seen[id]=1;if(!mk[id])mk[id]=aqMk(f).addTo(map)});
  Object.keys(mk).forEach(id=>{if(!seen[id]){mk[id].remove();delete mk[id]}})}
+// loadAQI: ambil AQI (US AQI) & PM2.5 semua kota dari Open-Meteo, buat source ber-cluster, gradasi polusi,
+// dan daftar 8 kota terburuk di tab Udara
 async function loadAQI(){
  try{const r=await (await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${CITIES.map(c=>c[1])}&longitude=${CITIES.map(c=>c[2])}&current=us_aqi,pm2_5`)).json(),A=Array.isArray(r)?r:[r];
   AQ=A.map((a,i)=>({name:CITIES[i][0],lat:CITIES[i][1],lon:CITIES[i][2],v:Math.round(a.current.us_aqi),pm:a.current.pm2_5})).filter(a=>!isNaN(a.v));worst=AQ.reduce((m,a)=>a.v>m.v?a:m,AQ[0]);
   map.addSource("aqs",{type:"geojson",cluster:true,clusterMaxZoom:8,clusterRadius:45,clusterProperties:{sum:["+",["get","aqi"]]},data:{type:"FeatureCollection",features:AQ.map(a=>({type:"Feature",geometry:{type:"Point",coordinates:[a.lon,a.lat]},properties:{name:a.name,aqi:a.v,pm:a.pm}}))}});
-  map.addLayer({id:"aqh",type:"circle",source:"aqs",paint:{"circle-radius":1,"circle-opacity":0}});
+  map.addLayer({id:"aqh",type:"circle",source:"aqs",paint:{"circle-radius":1,"circle-opacity":0}}); // layer tak terlihat, hanya agar source ter-render
   map.on("moveend",aqUpd);map.on("sourcedata",e=>e.sourceId=="aqs"&&e.isSourceLoaded&&aqUpd());gradient();
   $("#aql").innerHTML=[...AQ].sort((a,b)=>b.v-a.v).slice(0,8).map(a=>{const c=aqc(a.v);return`<div class="card" data-q="${esc(a.name)}"><span class="dot" style="background:${c[2]};margin:0 6px 0 0"></span><b style="display:inline">${esc(a.name)}</b>: AQI ${a.v}, ${c[1]}</div>`}).join("");
   document.querySelectorAll("[data-q]").forEach(c=>c.onclick=()=>{const k=AQ.find(a=>a.name==c.dataset.q);map.flyTo({center:[k.lon,k.lat],zoom:9,duration:1800})});cards(null)}catch(e){}}
 
+// cards: isi 4 kartu ringkasan di atas peta: jumlah titik, estimasi luas terbakar (jumlah titik x 14,06 ha, batas atas),
+// jumlah potensi kebakaran gambut, dan AQI terburuk. Data terakhir disimpan di lastF supaya bisa dipanggil ulang tanpa argumen.
 function cards(f){if(f)lastF=f;const F=lastF,n=F?F.length:null,p=F?F.filter(x=>x.properties.ly=="p").length:null,fm=x=>x.toLocaleString("id-ID");
  $("#cd").innerHTML=[["Pemantauan 2 Hari Terakhir",n===null?"–":fm(n)+" Titik",""],["Estimasi Luas Terbakar",n===null?"–":fm(Math.round(n*14.06))+" Hektar","Batas atas luasan."],["Potensi Kebakaran Gambut",p===null?"–":fm(p)+" Kasus",""],["AQI Terburuk Saat Ini",worst?worst.v+" ("+worst.name+")":"–",""]].map(c=>`<div title="${c[2]}"><small>${c[0]}</small><b>${c[1]}</b></div>`).join("")}
 
+// loadWind: ambil kecepatan & arah angin dari grid 40 titik (5 lintang x 8 bujur) lewat Open-Meteo,
+// ubah ke komponen u (timur-barat) dan v (utara-selatan), lalu mulai animasi. Dimatikan otomatis jika pengguna memilih "reduced motion".
 async function loadWind(){const la=[-9,-5,-1,3,5],lo=[96,102,108,114,120,126,132,138],P=[];la.forEach(y=>lo.forEach(x=>P.push([y,x])));
  if(matchMedia("(prefers-reduced-motion:reduce)").matches){wOn=false;$("#cW").checked=false}
  try{const r=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${P.map(q=>q[0])}&longitude=${P.map(q=>q[1])}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms`)).json();
   r.forEach((a,i)=>{const s=a.current.wind_speed_10m,d=a.current.wind_direction_10m*Math.PI/180;WG.push({lat:P[i][0],lon:P[i][1],u:-s*Math.sin(d),v:-s*Math.cos(d)})});startWind()}catch(e){}}
+// wnd: perkirakan kecepatan angin [u,v] di sembarang titik dengan interpolasi IDW dari grid WG
 function wnd(lon,lat){let sw=0,su=0,sv=0;for(const g of WG){const d=(g.lon-lon)**2+(g.lat-lat)**2+.5,q=1/(d*d);sw+=q;su+=q*g.u;sv+=q*g.v}return[su/sw,sv/sw]}
+// startWind: animasi partikel angin di canvas #wc.
+// 700 partikel digerakkan mengikuti vektor angin tiap frame; jejak memudar karena canvas ditimpa transparan (destination-in).
+// Partikel yang umurnya >90 frame di-spawn ulang di posisi acak dalam batas peta. Canvas dibersihkan saat peta digeser.
 function startWind(){const cv=$("#wc");wctx=cv.getContext("2d");const fit=()=>{cv.width=cv.clientWidth||innerWidth;cv.height=cv.clientHeight||(innerHeight-64)},clr=()=>wctx.clearRect(0,0,cv.width,cv.height);fit();addEventListener("resize",fit);map.on("move",clr);
  const sp=p=>{const b=map.getBounds();p.lon=b.getWest()+Math.random()*(b.getEast()-b.getWest());p.lat=b.getSouth()+Math.random()*(b.getNorth()-b.getSouth());p.age=Math.random()*80};for(let i=0;i<700;i++){const p={};sp(p);wp.push(p)}
  (function f(){requestAnimationFrame(f);if(!wOn||document.hidden)return;wctx.globalCompositeOperation="destination-in";wctx.fillStyle="rgba(0,0,0,.93)";wctx.fillRect(0,0,cv.width,cv.height);wctx.globalCompositeOperation="source-over";wctx.strokeStyle="rgba(255,255,255,.75)";wctx.lineWidth=1;wctx.beginPath();const dpp=360/(256*2**map.getZoom());
@@ -705,13 +829,19 @@ function startWind(){const cv=$("#wc");wctx=cv.getContext("2d");const fit=()=>{c
    if(++p.age>90)sp(p);else{wctx.moveTo(a.x,a.y);wctx.lineTo(b.x,b.y)}}wctx.stroke()})()}
 
 /* FUNGSI LAPOR WARGA */
+// addRep: tambahkan marker laporan warga (kotak merah) ke peta beserta popup detailnya
 function addRep(r){const el=document.createElement("div");el.className="rpm";el.innerHTML="<i class='fa-solid fa-exclamation'></i>";
  rpm.push(new maplibregl.Marker({element:el}).setLngLat([r.lon,r.lat]).setPopup(new maplibregl.Popup().setHTML(`<div class="pp"><b>Laporan Crowdsourcing</b>${esc(r.j)}<br>${esc(r.k||"-")}<small>${new Date(r.t).toLocaleString("id-ID")}, ${esc(r.s||"Belum Diverifikasi")}</small></div>`)).addTo(map))}
 rep.forEach(addRep);
+// setLL: isi kolom koordinat form dari objek {lat,lng}
 const setLL=ll=>$("#rl").value=ll.lat.toFixed(5)+", "+ll.lng.toFixed(5);
-$("#rc").onclick=()=>$("#rp").style.display="none";
+$("#rc").onclick=()=>$("#rp").style.display="none"; // tombol X menutup form
+// saat form terbuka, klik di peta = isi koordinat laporan
 map.on("click",e=>{if($("#rp").style.display=="block")setLL(e.lngLat)});
+// tombol GPS: ambil lokasi perangkat, isi koordinat, lalu zoom ke lokasi
 $("#gp").onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{setLL({lat:p.coords.latitude,lng:p.coords.longitude});map.flyTo({center:[p.coords.longitude,p.coords.latitude],zoom:11})},()=>$("#rm").textContent="Akses GPS ditolak peramban. Klik manual di peta."):0;
+// kirim laporan: validasi koordinat -> simpan di localStorage + tampilkan marker -> kirim ke server (REPORT_ENDPOINT).
+// Jika server gagal, laporan tetap tersimpan lokal.
 $("#rs").onclick=async()=>{const q=$("#rl").value.split(",").map(Number);
  if(q.length!=2||q.some(isNaN)){$("#rm").textContent="Mohon pilih lokasi di peta terlebih dahulu.";return}
  const r={lat:q[0],lon:q[1],j:$("#rj").value,k:$("#rk").value.trim(),t:Date.now()};rep.push(r);localStorage.pw_rep=JSON.stringify(rep);addRep(r);
@@ -720,6 +850,7 @@ $("#rs").onclick=async()=>{const q=$("#rl").value.split(",").map(Number);
  $("#rm").textContent=m;$("#rk").value="";};
 
 /* ===== KAWASAN HUTAN ===== */
+// Data kawasan hutan: [nama, jenis, provinsi, lat, lon, luas ha (0 = tidak diketahui), tipe ekosistem, 1 = sebagian gambut / 0 = bukan]
 const HUTAN=[
 ["TN Sebangau","Taman Nasional","Kalimantan Tengah",-2.85,113.85,568700,"Hutan rawa gambut",1],
 ["TN Tanjung Puting","Taman Nasional","Kalimantan Tengah",-2.95,111.95,415040,"Hutan rawa, gambut & mangrove",1],
@@ -737,32 +868,49 @@ const HUTAN=[
 ["TN Way Kambas","Taman Nasional","Lampung",-4.9,105.8,125621,"Dataran rendah & rawa",0],
 ["TN Kutai","Taman Nasional","Kalimantan Timur",.5,117.4,198629,"Hutan dipterokarpa",0],
 ["HL Sungai Wain","Hutan Lindung","Kalimantan Timur",-1.15,116.8,0,"Hutan hujan dataran rendah",0]];
-let hm=[];
+let hm=[]; // hm = daftar marker hutan
+// hStat: hitung hotspot dalam radius 30 km dari pusat kawasan hutan (pada rentang hari terpilih).
+// n = total hotspot, g = yang terindikasi gambut. Filter lat <0.3 derajat dipakai sebagai pra-saring agar hitungan jarak lebih cepat.
 function hStat(h){if(!rows.length)return null;const cut=shift(maxD,-(+$("#dy").value-1)),R=rows.filter(r=>r.d>=cut&&Math.abs(r.lat-h[3])<.3&&kmx([r.lon,r.lat],[h[4],h[3]])<=30);return{n:R.length,g:R.filter(r=>r.ly=="p").length}}
+// hLv: tentukan level status: 0 hotspot = Aman (hijau), 1-4 = Waspada (kuning), >=5 = Siaga (merah)
 const hLv=S=>!S?["Menunggu data","#94a3b8"]:S.n==0?["Aman","#34d399"]:S.n<5?["Waspada","#fbbf24"]:["Siaga","#ef4444"];
+// hutanHTML: isi popup untuk satu kawasan hutan
 function hutanHTML(i){const h=HUTAN[i],S=hStat(h),lv=hLv(S);return`<div class="pp"><b><i class="fa-solid fa-tree" style="color:#34d399"></i> ${esc(h[0])}</b><span class="chip2" style="background:${lv[1]}">${lv[0]}</span><br>${h[1]} · ${esc(h[2])}<br>Ekosistem: ${h[6]}${h[5]?`<br>Luas ±${h[5].toLocaleString("id-ID")} ha`:""}${S?`<br>Hotspot ≤30 km: <b style="display:inline">${S.n}</b>${S.g?` (${S.g} indikasi gambut)`:""}`:""}${h[7]?"<small>Sebagian kawasan berupa gambut, rawan api bawah tanah.</small>":""}</div>`}
+// loadHutan: buat marker pohon untuk tiap kawasan hutan di peta
 function loadHutan(){HUTAN.forEach((h,i)=>{const el=document.createElement("div");el.className="fm";el.innerHTML='<i class="fa-solid fa-tree"></i>';el.title=h[0];
  el.onclick=ev=>{ev.stopPropagation();new maplibregl.Popup({maxWidth:"300px"}).setLngLat([h[4],h[3]]).setHTML(hutanHTML(i)).addTo(map)};
  hm.push({el,h,m:new maplibregl.Marker({element:el}).setLngLat([h[4],h[3]]).addTo(map)})});renderHutan()}
+// renderHutan: perbarui warna/kedip marker sesuai status, bangun daftar kartu di tab Hutan, dan hitung berapa kawasan punya hotspot (w)
 function renderHutan(){if(!hm.length)return;let w=0;
  $("#fl").innerHTML=HUTAN.map((h,i)=>{const S=hStat(h),lv=hLv(S);if(S&&S.n)w++;const e=hm[i].el;e.style.setProperty("--c",lv[1]);e.classList.toggle("siaga",lv[0]=="Siaga");
   return`<div class="card" data-h="${i}"><div class="kh"><b>${esc(h[0])}</b><span class="chip2" style="background:${lv[1]}">${lv[0]}</span></div><small class="mu">${h[1]} · ${esc(h[2])}</small><small class="mu">${h[6]}${h[5]?" · ±"+h[5].toLocaleString("id-ID")+" ha":""}</small>${S?`<div>Hotspot ≤30 km: <b style="display:inline">${S.n}</b>${S.g?` (${S.g} gambut)`:""}</div>`:""}</div>`}).join("");
  $("#hs").textContent=rows.length?`${w} dari ${HUTAN.length} kawasan memiliki hotspot di sekitarnya.`:"Menunggu data hotspot...";
+ // klik kartu = terbang ke hutan itu, lalu popup terbuka otomatis
  document.querySelectorAll("[data-h]").forEach(c=>c.onclick=()=>{const h=HUTAN[+c.dataset.h];map.flyTo({center:[h[4],h[3]],zoom:9.5,pitch:55,duration:1800});setTimeout(()=>hm[+c.dataset.h].el.click(),1900)})}
+// checkbox "Titik kawasan hutan" menampilkan/menyembunyikan semua marker hutan
 $("#cH").onchange=e=>hm.forEach(x=>x.el.style.display=e.target.checked?"":"none");
 
 /* ===== TAB, PETA DASAR, CSV, DLL ===== */
+// klik tombol tab -> ganti tab
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+// tombol peta dasar: hanya satu layer dasar (sat/dark/osm) yang ditampilkan, tombol terpilih ditandai aria-pressed
 document.querySelectorAll("[data-bm]").forEach(b=>b.onclick=()=>{["sat","dark","osm"].forEach(i=>vis(i,i==b.dataset.bm));document.querySelectorAll("[data-bm]").forEach(x=>x.setAttribute("aria-pressed",x==b))});
+// tandai tombol wilayah yang terakhir diklik
 $("#rg").addEventListener("click",e=>{const b=e.target.closest("button");if(b)[...$("#rg").children].forEach(x=>x.setAttribute("aria-pressed",x==b))});
+// unduh CSV: ekspor hotspot sesuai rentang hari terpilih menjadi file hotspot-pyrowatch.csv
 $("#csv").onclick=()=>{if(!rows.length)return;const cut=shift(maxD,-(+$("#dy").value-1)),L=["lat,lon,tanggal,jam,satelit,confidence,frp_mw,khg,lapisan"];
  rows.filter(r=>r.d>=cut).forEach(r=>L.push([r.lat,r.lon,r.d,r.t,r.sat,r.conf,r.frp,'"'+r.khg+'"',r.ly=="p"?"gambut":"permukaan"].join(",")));
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([L.join("\n")],{type:"text/csv"}));a.download="hotspot-pyrowatch.csv";a.click()};
+// tombol Esc menutup form lapor
 addEventListener("keydown",e=>{if(e.key=="Escape")$("#rp").style.display="none"});
+// efek berdenyut (glow) pada hotspot: opacity layer fg digeser mengikuti gelombang sinus tiap 90 ms
 setInterval(()=>{if(map.getLayer("fg")&&!document.hidden)map.setPaintProperty("fg","circle-opacity",.5+.2*Math.sin(Date.now()/450))},90);
 
 /* ===== DATABASE (PHP + MySQL) ===== */
+// buildRegions: bangun ulang tombol wilayah (dipakai jika daftar wilayah diganti dari database)
 function buildRegions(){$("#rg").innerHTML="";Object.keys(REGIONS).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>map.flyTo({center:REGIONS[n].c,zoom:REGIONS[n].z,pitch:REGIONS[n].p,bearing:REGIONS[n].b,duration:2200});$("#rg").appendChild(b)})}
+// loadDB: ambil data konfigurasi dari api/peta.php (wilayah, kota, kategori AQI, jenis laporan, penyebab hotspot, laporan warga).
+// Jika gagal, tampilkan peringatan dan pakai data bawaan + laporan dari localStorage.
 async function loadDB(){try{const r=await fetch("api/peta.php");if(!r.ok)throw 0;const d=await r.json();
  if(d.wilayah&&Object.keys(d.wilayah).length){REGIONS=d.wilayah;buildRegions()}
  if(d.kota&&d.kota.length)CITIES=d.kota;if(d.aqi&&d.aqi.length)AQC=d.aqi;
@@ -770,10 +918,14 @@ async function loadDB(){try{const r=await fetch("api/peta.php");if(!r.ok)throw 0
  Object.assign(cause,d.penyebab||{});
  rpm.forEach(m=>m.remove());rpm=[];rep=d.laporan||[];rep.forEach(r=>addRep(r))
  }catch(e){note("Database tidak terhubung, memakai data bawaan.");rep=JSON.parse(localStorage.pw_rep||"[]");rep.forEach(r=>addRep(r))}}
+// saveHotspots: kirim hotspot ke database (api/hotspot.php) maksimal tiap 30 menit (1.8e6 ms) agar tidak spam server
 function saveHotspots(){try{if(Date.now()-(+localStorage.pw_sv||0)<18e5)return;
  fetch("api/hotspot.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({rows:rows.map(r=>({lon:r.lon,lat:r.lat,frp:r.frp,conf:r.conf,d:r.d,t:r.t,sat:r.sat,tb:r.tb,khg:r.khg,ly:r.ly}))})}).then(x=>{if(x.ok)localStorage.pw_sv=Date.now()}).catch(()=>{})}catch(e){}}
+// dbFallback: jika NASA FIRMS tidak bisa diakses, ambil hotspot 5 hari terakhir yang tersimpan di database
 async function dbFallback(){try{const r=await (await fetch("api/hotspot.php?days=5")).json();if(!r.ok||!r.data.length)throw 0;rows=r.data;maxD=rows.reduce((a,x)=>x.d>a?x.d:a,"");note("NASA FIRMS tidak terjangkau, menampilkan hotspot tersimpan di database.");mountFires()}catch(e){$("#stat").textContent="Gagal memuat API FIRMS NASA dan database."}}
 
+// ENTRY POINT: setelah peta selesai dimuat, jalankan semua pemuatan data secara berurutan,
+// lalu otomatis terbang ke Kalimantan Tengah (area rawan gambut) dengan tampilan 3D
 map.on("load",async()=>{setColor();cards(null);await loadDB();await loadKHG();loadHutan();await loadFires();loadAQI();loadWind();
  vis("fg",$("#cF").checked);vis("fp",$("#cF").checked);
  setTimeout(()=>{map.flyTo({center:[113.6,-2.6],zoom:8.2,pitch:60,bearing:20,duration:3500,essential:true});const k=[...$("#rg").children].find(b=>b.textContent=="Kalteng");k&&k.setAttribute("aria-pressed",true)},700)});
